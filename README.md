@@ -1,13 +1,3 @@
-# Poco a Poco v10
+# Poco a Poco v11 — Mi Vida en Guatemala
 
-Offline-first Spanish practice for life in Guatemala.
-
-v10 includes:
-- Living Journey
-- Missions
-- Adaptive Smart Coach
-- Personas
-- Speaking Lab
-- local progress and memory
-
-No paid API is required.
+Offline-first Spanish life simulator. No paid AI service is required.
