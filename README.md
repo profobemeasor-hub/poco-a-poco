@@ -1,5 +1,5 @@
-# Poco a Poco v7
+# Poco a Poco v7.1
 
-Living-in-Guatemala Spanish coach with offline practice, live AI conversation, and persistent AI learning memory.
+Offline-first Spanish practice for everyday life in Guatemala.
 
-See `V7_README.md` for deployment instructions.
+No paid AI API is required. Smart Coach roleplays, missions, speech practice, confidence and progress run locally in the PWA.

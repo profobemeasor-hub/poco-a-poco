@@ -1,10 +1,5 @@
-node_modules
-dist
+node_modules/
+dist/
 .DS_Store
-.env
-.env.*
-.dev.vars
-.dev.vars.*
-worker/node_modules
-.wrangler
-worker/.wrangler
+.vite/
+.vercel/
