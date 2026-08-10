@@ -1,9 +1,12 @@
-# Poco a Poco v8
+# Poco a Poco v9
 
-Offline-first Spanish practice for everyday life in Guatemala.
+Offline-first Spanish practice for real life in Guatemala.
 
-## Core idea
-Practice real conversations rather than isolated vocabulary. Smart Coach now adapts
-to weak situations and recycles missed language locally without a paid AI service.
+v9 combines:
+- adaptive multi-turn Smart Coach
+- missions and confidence tracking
+- local weak-language memory
+- voice-first Speaking Lab
+- shadowing and fluency practice
 
-See `V8_README.md`.
+See `V9_README.md`.

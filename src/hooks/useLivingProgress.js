@@ -8,7 +8,8 @@ const base={
   confidence:{arrival:25,daily:30,social:15,transport:25,shopping:20,food:25,home:15,bank:10,health:10,business:10},
   scenarioScores:{},
   reflections:[],
-  coachMemory:{weakWords:{},mistakes:{},rounds:[],totalTurns:0}
+  coachMemory:{weakWords:{},mistakes:{},rounds:[],totalTurns:0},
+  speaking:{attempts:[],byPhrase:{},totalSeconds:0}
 };
 
 function merge(saved={}){
@@ -22,6 +23,12 @@ function merge(saved={}){
       weakWords:{...base.coachMemory.weakWords,...(saved.coachMemory?.weakWords||{})},
       mistakes:{...base.coachMemory.mistakes,...(saved.coachMemory?.mistakes||{})},
       rounds:[...(saved.coachMemory?.rounds||[])].slice(-60)
+    },
+    speaking:{
+      ...base.speaking,
+      ...(saved.speaking||{}),
+      attempts:[...(saved.speaking?.attempts||[])].slice(-100),
+      byPhrase:{...base.speaking.byPhrase,...(saved.speaking?.byPhrase||{})}
     }
   };
 }
@@ -98,6 +105,31 @@ export function useLivingProgress(){
     });
   },[]);
 
+
+  const recordSpeaking=useCallback((attempt)=>{
+    setState(s=>{
+      const id=attempt.phraseId;
+      const prior=s.speaking?.byPhrase?.[id]||[];
+      const compact={
+        match:attempt.match,
+        fluency:attempt.fluency,
+        overall:attempt.overall,
+        duration:attempt.duration,
+        transcript:attempt.transcript,
+        at:Date.now()
+      };
+      return persist({
+        ...s,
+        xp:s.xp+Math.max(8,Math.round(attempt.overall/5)),
+        speaking:{
+          attempts:[...(s.speaking?.attempts||[]),{...compact,phraseId:id}].slice(-100),
+          byPhrase:{...(s.speaking?.byPhrase||{}),[id]:[...prior,compact].slice(-10)},
+          totalSeconds:Math.round((s.speaking?.totalSeconds||0)+(attempt.duration||0))
+        }
+      });
+    });
+  },[]);
+
   const addReflection=useCallback(text=>{
     if(!text.trim())return;
     setState(s=>persist({
@@ -120,5 +152,5 @@ export function useLivingProgress(){
   const topMistakes=useMemo(()=>Object.entries(state.coachMemory?.mistakes||{})
     .sort((a,b)=>b[1]-a[1]).slice(0,6),[state.coachMemory]);
 
-  return {state,save,completeMission,recordScenario,recordCoachTurn,addReflection,clearCoachMemory,weakest,weakWords,topMistakes};
+  return {state,save,completeMission,recordScenario,recordCoachTurn,recordSpeaking,addReflection,clearCoachMemory,weakest,weakWords,topMistakes};
 }
