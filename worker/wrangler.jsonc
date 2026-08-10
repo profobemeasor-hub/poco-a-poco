@@ -1,6 +1,14 @@
 {
-  "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "poco-a-poco-ai",
-  "main": "src/index.js",
-  "compatibility_date": "2026-08-01"
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "poco-a-poco-ai",
+	"main": "src/index.js",
+	"compatibility_date": "2026-08-01",
+	"d1_databases": [
+		{
+			"binding": "MEMORY",
+			"database_name": "poco-a-poco-memory",
+			"database_id": "0b54f69a-8b61-402e-8fa1-41ba725d95c1",
+			"remote": true
+		}
+	]
 }

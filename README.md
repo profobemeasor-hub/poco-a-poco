@@ -1,5 +1,5 @@
-# Poco a Poco v6
+# Poco a Poco v7
 
-Living-in-Guatemala Spanish PWA with an optional secure Live AI Coach.
+Living-in-Guatemala Spanish coach with offline practice, live AI conversation, and persistent AI learning memory.
 
-Start with `V6_README.md`. To add Live AI and publish the update, run `SETUP_AI_COACH.command` on the Mac that already contains the working `poco-a-poco-github` repository.
+See `V7_README.md` for deployment instructions.
