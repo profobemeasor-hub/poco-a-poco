@@ -1,18 +1,7 @@
-# Poco a Poco
+# Poco a Poco v5
 
-A personal Spanish practice PWA focused on everyday Guatemalan Spanish, work, IT and port operations.
+Install locally: `npm install && npm run dev`
 
-## Run locally
+Publish over the existing GitHub Pages app by double-clicking `APPLY_V5_AND_PUBLISH.command`.
 
-Double-click `START_ON_MAC.command`, or run:
-
-```bash
-npm install
-npm run dev
-```
-
-## Publish to GitHub Pages
-
-Double-click `PUBLISH_TO_GITHUB.command` and follow the prompts. The repository must be named exactly `poco-a-poco` because the production PWA is configured for that GitHub Pages path.
-
-See `GITHUB_SETUP.md` for the full first-time and iPhone installation steps.
+Live URL after deployment: `https://profobemeasor-hub.github.io/poco-a-poco/`

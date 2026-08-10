@@ -1,19 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 html, body, #root { min-height: 100%; margin: 0; }
 html { background: #0E2B2A; }
 body { min-width: 320px; overscroll-behavior-y: none; }
 button, textarea, input { font: inherit; }
 button { touch-action: manipulation; }
-.premium-card { box-shadow: 0 18px 42px rgba(0,0,0,.14); }
-.scenario-card { min-height: 142px; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
-.scenario-card:hover { border-color: #3a6a64 !important; background: #173f3d !important; }
-.scenario-icon { width: 34px; height: 34px; border-radius: 11px; display:flex; align-items:center; justify-content:center; background: rgba(242,233,220,.06); border: 1px solid #27544F; }
-.mini-stat { min-height: 76px; padding: 10px 8px; border-radius: 14px; border: 1px solid #27544F; background: #143836; color:#BFAE97; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; text-align:center; }
-.mini-stat strong { color:#F2E9DC; font-size:13px; }
-.mini-stat span { font-size:10px; letter-spacing:.04em; }
-@supports (padding: max(0px)) {
-  .safe-bottom { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
-}
+@supports (padding: max(0px)) { .safe-bottom { padding-bottom: max(18px, env(safe-area-inset-bottom)); } }
