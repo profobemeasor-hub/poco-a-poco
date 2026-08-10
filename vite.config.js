@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const REPO = 'poco-a-poco';
@@ -10,7 +9,6 @@ export default defineConfig(({ command }) => ({
   // Keep local development at / so START_ON_MAC.command still works unchanged.
   base: command === 'build' ? pagesBase : '/',
   plugins: [
-    react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['apple-touch-icon.png'],

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Volume2, ChevronLeft, Layers, Target, BarChart3, Flame, RotateCcw,
-  Check, X, Sparkles, BookOpen, Mic, Shuffle, Headphones, Eye, Timer, MessageCircle, Brain, Send
+  Check, X, Sparkles, BookOpen, Mic, Shuffle, Headphones, Eye, Timer, MessageCircle, Brain, Send, Zap, Briefcase, MapPin, TrendingUp, Award, ShieldCheck, Wifi, Database, ClipboardCheck
 } from 'lucide-react';
 
 const T = {
@@ -247,6 +247,51 @@ const TUTOR_SCENARIOS = [
       {ask:'¿Algo más?', target:['cuenta','cuando','pueda','gracias'], model:'Nada más, gracias. La cuenta cuando pueda, por favor.'},
     ]
   },
+  {
+    id:'vendor', title:'Vendor escalation', subtitle:'Supplier & deadline', accent:T.violet,
+    opening:'No vamos a terminar la instalación hoy. Necesitamos dos días más.',
+    prompts:[
+      {ask:'No vamos a terminar la instalación hoy. Necesitamos dos días más. ¿Qué respondes?', target:['impacto','operación','fecha','plan','recuperación'], model:'Necesito entender el impacto para la operación. Confírmeme hoy la nueva fecha y el plan de recuperación.'},
+      {ask:'El proveedor dice que depende de una pieza que todavía no llega.', target:['pieza','llegar','fecha','alternativa','temporal'], model:'¿Cuándo llega la pieza? Mientras tanto, necesito una alternativa temporal para reducir el riesgo.'},
+      {ask:'Te piden cerrar la llamada. Resume el acuerdo.', target:['acuerdo','actualización','hoy','seguimiento','mañana'], model:'Quedamos así: hoy me envían la actualización y mañana revisamos el avance. Yo le doy seguimiento.'},
+    ]
+  },
+  {
+    id:'safety', title:'Safety intervention', subtitle:'Stop work & explain', accent:T.rose,
+    opening:'Ves una condición insegura cerca de una grúa. ¿Qué dices?',
+    prompts:[
+      {ask:'Ves una condición insegura cerca de una grúa. ¿Qué dices?', target:['detenga','operación','seguridad','riesgo','revisar'], model:'Detenga la operación, por favor. Hay un riesgo de seguridad y necesitamos revisarlo antes de continuar.'},
+      {ask:'Operaciones pregunta cuánto tiempo tomará.', target:['minutos','revisar','confirmar','seguro','continuar'], model:'Necesito unos minutos para revisar la condición. Les confirmo cuando sea seguro continuar.'},
+      {ask:'Ya corrigieron el problema. ¿Cómo autorizas continuar?', target:['corregido','seguro','continuar','operación'], model:'La condición ya fue corregida y el área está segura. Pueden continuar la operación.'},
+    ]
+  },
+  {
+    id:'network', title:'Network incident', subtitle:'Switch, link & recovery', accent:T.jade,
+    opening:'Perdimos conectividad con una zona del terminal. ¿Qué verificas primero?',
+    prompts:[
+      {ask:'Perdimos conectividad con una zona del terminal. ¿Qué verificas primero?', target:['switch','enlace','energía','puerto','vlan'], model:'Primero reviso energía, estado del switch, el enlace y los puertos. Después valido la VLAN y la ruta.'},
+      {ask:'El enlace físico está arriba, pero no hay comunicación.', target:['vlan','configuración','arp','ruta','tráfico'], model:'Voy a validar la VLAN, la configuración del puerto, ARP y la ruta para identificar dónde se corta el tráfico.'},
+      {ask:'La comunicación volvió. ¿Qué informas a Operaciones?', target:['restablecido','monitoreando','causa','actualización'], model:'El servicio ya está restablecido. Seguimos monitoreando y les comparto la causa raíz cuando terminemos la revisión.'},
+    ]
+  },
+  {
+    id:'backup', title:'Backup & recovery', subtitle:'StoreOnce / recovery talk', accent:T.marigold,
+    opening:'El respaldo nocturno falló. ¿Cómo respondes?',
+    prompts:[
+      {ask:'El respaldo nocturno falló. ¿Cómo respondes?', target:['revisar','error','respaldo','reintentar','impacto'], model:'Voy a revisar el error y el impacto. Si es seguro, reintentamos el respaldo de inmediato.'},
+      {ask:'Te preguntan si los datos están en riesgo.', target:['copia','anterior','verificar','riesgo','recuperación'], model:'Tenemos una copia anterior disponible, pero voy a verificarla y confirmar el riesgo y el punto de recuperación.'},
+      {ask:'El reintento terminó bien. Da el cierre.', target:['terminó','correctamente','verificado','monitoreo'], model:'El reintento terminó correctamente y ya verificamos la copia. Mantendremos el monitoreo durante el día.'},
+    ]
+  },
+  {
+    id:'management', title:'Executive update', subtitle:'Concise status', accent:T.sand,
+    opening:'Dame una actualización de treinta segundos sobre el incidente.',
+    prompts:[
+      {ask:'Dame una actualización de treinta segundos sobre el incidente.', target:['incidente','impacto','operación','equipo','trabajando'], model:'Tenemos un incidente de conectividad con impacto limitado. La operación continúa y el equipo está trabajando en la recuperación.'},
+      {ask:'¿Cuál es el principal riesgo ahora?', target:['riesgo','redundancia','tiempo','operación','mitigación'], model:'El principal riesgo es perder la redundancia si el segundo enlace falla. Ya tenemos una mitigación temporal.'},
+      {ask:'¿Cuándo das la próxima actualización?', target:['actualización','hora','antes','cambio'], model:'Les doy la próxima actualización en una hora, o antes si hay un cambio importante.'},
+    ]
+  },
 ];
 
 function tutorFeedback(expected, spoken){
@@ -260,7 +305,7 @@ function tutorFeedback(expected, spoken){
   return {score, notes};
 }
 
-function Tutor({grade,say}){
+function Tutor({grade,recordTutor,say}){
   const [scenario,setScenario]=useState(null);
   const [step,setStep]=useState(0);
   const [answer,setAnswer]=useState('');
@@ -280,6 +325,7 @@ function Tutor({grade,say}){
     const score=Math.round(coverage*.65+modelMatch.score*.35);
     const ok=score>=55;
     grade(`tutor:${scenario.id}:${step}`,ok,'speak');
+    recordTutor?.(scenario.id,score);
     setResult({score,coverage,notes:modelMatch.notes});
     setSessionScore(s=>[...s,score]);
     say(current.model,.82);
@@ -290,16 +336,22 @@ function Tutor({grade,say}){
   };
 
   if(!scenario) return <><Header title="Tutor" sub="adaptive speaking practice"/><div className="px-5 pb-8">
-    <div className="p-5 mb-5" style={{background:'linear-gradient(145deg, rgba(233,163,60,.16), rgba(87,183,154,.10))',border:`1px solid ${T.marigold}`,borderRadius:22}}>
-      <div className="flex items-center gap-2" style={{color:T.marigold}}><Brain size={20}/><span style={{fontFamily:mono,fontSize:10,letterSpacing:'.12em'}}>OFFLINE COACH</span></div>
-      <div style={{fontFamily:serif,fontSize:24,color:T.cream,marginTop:10,lineHeight:1.2}}>Practice the Spanish you actually need.</div>
-      <div style={{fontSize:13.5,color:T.sand,lineHeight:1.55,marginTop:8}}>Answer naturally by voice or text. The coach checks whether you communicated the key idea, then gives you a natural model answer.</div>
+    <div className="p-5 mb-4 premium-card" style={{background:'linear-gradient(145deg, rgba(233,163,60,.18), rgba(87,183,154,.10) 55%, rgba(155,123,184,.10))',border:`1px solid ${T.marigold}`,borderRadius:24}}>
+      <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2" style={{color:T.marigold}}><Brain size={20}/><span style={{fontFamily:mono,fontSize:10,letterSpacing:'.12em'}}>POCO COACH</span></div><div className="flex items-center gap-1" style={{fontFamily:mono,fontSize:9,color:T.jade}}><ShieldCheck size={14}/> OFFLINE-FIRST</div></div>
+      <div style={{fontFamily:serif,fontSize:27,color:T.cream,marginTop:12,lineHeight:1.15}}>Think less. Respond faster.</div>
+      <div style={{fontSize:13.5,color:T.sand,lineHeight:1.6,marginTop:9}}>Practice realistic conversations from terminal operations, IT incidents, vendors and daily life in Guatemala. The goal is clear communication, not perfect classroom Spanish.</div>
+    </div>
+    <div className="grid grid-cols-3 gap-2 mb-5">
+      <div className="mini-stat"><Zap size={15}/><strong>3</strong><span>turns</span></div>
+      <div className="mini-stat"><Mic size={15}/><strong>Voice</strong><span>or text</span></div>
+      <div className="mini-stat"><TrendingUp size={15}/><strong>Score</strong><span>each reply</span></div>
     </div>
     <div style={{fontFamily:mono,fontSize:10.5,color:T.sand,letterSpacing:'.12em',marginBottom:10}}>CHOOSE A SCENARIO</div>
-    <div className="flex flex-col gap-3">{TUTOR_SCENARIOS.map(x=><button key={x.id} onClick={()=>{setScenario(x);setStep(0);setAnswer('');setResult(null);setSessionScore([])}} className="p-4 text-left" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>
-      <div className="flex items-center justify-between"><div><div style={{fontFamily:serif,fontSize:19,color:T.cream}}>{x.title}</div><div style={{fontSize:13,color:T.sand,marginTop:2}}>{x.subtitle}</div></div><div style={{width:10,height:10,borderRadius:99,background:x.accent}}/></div>
-    </button>)}</div>
-    <div className="p-4 mt-5" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:16}}><div style={{fontFamily:mono,fontSize:9.5,color:T.marigold,letterSpacing:'.12em'}}>LIVE AI READY</div><div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:6}}>The app is prepared for a secure live-AI endpoint. No API secret is stored in this browser build.</div></div>
+    <div className="grid grid-cols-2 gap-3">{TUTOR_SCENARIOS.map((x,idx)=>{const Icon=[Briefcase,ClipboardCheck,MapPin,Wifi,Database,Award,ShieldCheck,MessageCircle][idx%8];return <button key={x.id} onClick={()=>{setScenario(x);setStep(0);setAnswer('');setResult(null);setSessionScore([])}} className="p-4 text-left scenario-card" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>
+      <div className="flex items-center justify-between"><div className="scenario-icon" style={{color:x.accent}}><Icon size={18}/></div><div style={{width:8,height:8,borderRadius:99,background:x.accent}}/></div>
+      <div style={{fontFamily:serif,fontSize:17.5,color:T.cream,marginTop:12,lineHeight:1.2}}>{x.title}</div><div style={{fontSize:12.5,color:T.sand,marginTop:4,lineHeight:1.35}}>{x.subtitle}</div>
+    </button>})}</div>
+    <div className="p-4 mt-5" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:16}}><div className="flex items-center gap-2" style={{fontFamily:mono,fontSize:9.5,color:T.marigold,letterSpacing:'.12em'}}><ShieldCheck size={14}/> SECURE AI PATH</div><div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:7}}>Live open-ended AI is the next server-side layer. This static GitHub Pages build keeps secrets out of the browser and remains fully usable without it.</div></div>
   </div></>;
 
   if(!current){ const avg=sessionScore.length?Math.round(sessionScore.reduce((a,b)=>a+b,0)/sessionScore.length):0; return <><Header title={scenario.title} onBack={()=>setScenario(null)}/><div className="px-5 text-center pt-8"><div style={{fontFamily:mono,fontSize:10,color:T.sand}}>SESSION SCORE</div><div style={{fontFamily:serif,fontSize:64,color:avg>=70?T.jade:T.marigold}}>{avg}%</div><div style={{fontSize:14,color:T.sand,lineHeight:1.6}}>Repeat the scenario until your answer comes out without translating first.</div><button onClick={()=>{setStep(0);setAnswer('');setResult(null);setSessionScore([])}} className="mt-6 w-full py-4" style={{borderRadius:16,background:T.marigold,border:'none',color:T.ground,fontWeight:800}}>Run it again</button></div></>; }
@@ -325,7 +377,7 @@ function Tutor({grade,say}){
   </div></>;
 }
 
-const STORE_KEY = 'espanol:progress:v3';
+const STORE_KEY = 'espanol:progress:v3'; // Keep v3 key so upgrades preserve existing progress.
 const INTERVALS = [0,1,3,7,21];
 const DAY = 86400000;
 const todayStr = () => new Date().toISOString().slice(0,10);
@@ -401,7 +453,7 @@ function useSpeechRecognition(){
 }
 
 function useProgress(){
-  const empty={cards:{},streak:0,lastDay:null,spoken:0,built:0};
+  const empty={cards:{},streak:0,lastDay:null,spoken:0,built:0,tutorSessions:[],daily:{}};
   const [state,setState]=useState(empty); const [loaded,setLoaded]=useState(false); const ref=useRef(state); ref.current=state;
   useEffect(()=>{
     let next={...empty};
@@ -417,8 +469,14 @@ function useProgress(){
     let streak=s.streak; if(s.lastDay!==t) streak=s.lastDay===y?s.streak+1:1;
     persist({...s,cards:{...s.cards,[cardId]:{box,due:Date.now()+INTERVALS[Math.max(box-1,0)]*DAY,seen:prev.seen+1,right:prev.right+(correct?1:0)}},streak,lastDay:t,spoken:s.spoken+(kind==='speak'?1:0),built:s.built+(kind==='build'?1:0)});
   },[persist]);
+  const recordTutor=useCallback((scenarioId,score)=>{
+    const s=ref.current; const t=todayStr();
+    const sessions=[...(s.tutorSessions||[]),{scenarioId,score,at:Date.now()}].slice(-100);
+    const daily={...(s.daily||{}),[t]:{...((s.daily||{})[t]||{}),tutor:(((s.daily||{})[t]?.tutor)||0)+1}};
+    persist({...s,tutorSessions:sessions,daily});
+  },[persist]);
   const reset=useCallback(()=>persist({...empty}),[persist]);
-  return{state,grade,reset,loaded};
+  return{state,grade,recordTutor,reset,loaded};
 }
 
 function Speak({text,say,size=20}){ return <button onClick={e=>{e.stopPropagation();say(text);}} aria-label="Play pronunciation" className="flex items-center justify-center" style={{width:size+20,height:size+20,borderRadius:99,background:'rgba(242,233,220,.08)',border:`1px solid ${T.line}`,color:T.cream,flexShrink:0}}><Volume2 size={size}/></button>; }
@@ -430,6 +488,7 @@ function Home({progress,onOpen,onReview,dueCount}){
   const mastered=Object.keys(progress.cards).filter(id=>CARD_BY_ID[id]&&progress.cards[id].box>=4).length;
   return <div className="pb-6"><div className="px-5 pt-8 pb-6"><div style={{fontFamily:mono,fontSize:11,letterSpacing:'.16em',color:T.sand,marginBottom:10}}>ESPAÑOL — GUATEMALA</div><div style={{fontFamily:serif,fontSize:38,lineHeight:1.05,color:T.cream}}>Poco a poco<span style={{color:T.marigold}}>.</span></div><div style={{fontSize:14,color:T.sand,marginTop:10}}>{mastered} of {ALL_CARDS.length} words are sticking.</div></div>
   <div className="px-5 grid grid-cols-2 gap-3"><div className="p-4" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}><div className="flex items-center gap-2" style={{color:T.marigold}}><Flame size={16}/><span style={{fontFamily:mono,fontSize:10,color:T.sand}}>STREAK</span></div><div style={{fontFamily:serif,fontSize:30,color:T.cream,marginTop:6}}>{progress.streak}<span style={{fontSize:14,color:T.sand}}> días</span></div></div><button onClick={onReview} disabled={!dueCount} className="p-4 text-left" style={{background:dueCount?T.marigold:T.surface,border:`1px solid ${dueCount?T.marigold:T.line}`,borderRadius:18,opacity:dueCount?1:.55}}><div style={{fontFamily:mono,fontSize:10,color:dueCount?'rgba(14,43,42,.7)':T.sand}}>DUE NOW</div><div style={{fontFamily:serif,fontSize:30,color:dueCount?T.ground:T.cream,marginTop:6}}>{dueCount}<span style={{fontSize:14}}> words</span></div></button></div>
+  <div className="mx-5 mt-3 p-4 premium-card" style={{background:'linear-gradient(110deg, rgba(87,183,154,.11), rgba(155,123,184,.08))',border:`1px solid ${T.line}`,borderRadius:18}}><div className="flex items-center gap-2" style={{fontFamily:mono,fontSize:9.5,color:T.jade,letterSpacing:'.1em'}}><Zap size={14}/> DAILY FORMULA</div><div style={{fontFamily:serif,fontSize:18,color:T.cream,marginTop:7}}>5 cards · 3 spoken replies · 1 listening round</div><div style={{fontSize:12.5,color:T.sand,marginTop:4}}>Small enough to do every day. Hard enough to make Spanish automatic.</div></div>
   {GROUPS.map(g=><div key={g.id}><div className="px-5 mt-8 mb-3"><div style={{fontFamily:mono,fontSize:11,letterSpacing:'.14em',color:T.marigold}}>{g.label}</div><div style={{fontSize:12.5,color:T.sand,marginTop:3}}>{g.note}</div></div><div className="px-5 flex flex-col gap-3">{DECKS.filter(d=>d.group===g.id).map(d=>{const cards=ALL_CARDS.filter(c=>c.deck===d.id),known=cards.filter(c=>(progress.cards[c.id]?.box||0)>=4).length,pct=Math.round(known/cards.length*100);return <button key={d.id} onClick={()=>onOpen(d.id)} className="w-full text-left p-4" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}><div className="flex items-baseline justify-between"><div><div style={{fontFamily:serif,fontSize:19,color:T.cream}}>{d.name}</div><div style={{fontSize:13,color:T.sand,marginTop:2}}>{d.en}</div></div><div style={{fontFamily:mono,fontSize:12,color:d.accent}}>{pct}%</div></div><div className="mt-3 flex items-center gap-3"><div className="flex-1 overflow-hidden" style={{height:4,borderRadius:99,background:'rgba(242,233,220,.1)'}}><div style={{width:`${pct}%`,height:'100%',background:d.accent}}/></div><div style={{fontFamily:mono,fontSize:11,color:T.sand}}>{known}/{cards.length}</div></div></button>})}</div></div>)}</div>;
 }
 
@@ -498,6 +557,10 @@ function ProgressView({progress,reset}){
   const vocab=Object.entries(progress.cards).filter(([id])=>CARD_BY_ID[id]);
   const boxes=[1,2,3,4,5].map(b=>vocab.filter(([,v])=>v.box===b).length);
   const all=Object.values(progress.cards),seen=all.reduce((a,c)=>a+(c.seen||0),0),right=all.reduce((a,c)=>a+(c.right||0),0),acc=seen?Math.round(right/seen*100):0;
+  const tutorSessions=progress.tutorSessions||[];
+  const tutorAvg=tutorSessions.length?Math.round(tutorSessions.reduce((a,x)=>a+(x.score||0),0)/tutorSessions.length):0;
+  const recentTutor=tutorSessions.slice(-10);
+  const scenarioStats=TUTOR_SCENARIOS.map(sc=>{const rows=tutorSessions.filter(x=>x.scenarioId===sc.id);return{...sc,count:rows.length,avg:rows.length?Math.round(rows.reduce((a,x)=>a+x.score,0)/rows.length):0}}).filter(x=>x.count).sort((a,b)=>a.avg-b.avg);
   const importRef=useRef(null);
   const backup=()=>{
     const payload={version:1,exportedAt:new Date().toISOString(),progress};
@@ -513,6 +576,11 @@ function ProgressView({progress,reset}){
     <div className="grid grid-cols-3 gap-3 mb-7">{[['Streak',progress.streak],['Spoken',progress.spoken],['Built',progress.built]].map(([l,v])=><div key={l} className="p-3" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:16}}><div style={{fontFamily:mono,fontSize:9,color:T.sand}}>{l.toUpperCase()}</div><div style={{fontFamily:serif,fontSize:22,color:T.cream}}>{v}</div></div>)}</div>
     <div className="p-4 mb-7 flex flex-col gap-3" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>{['New again','Learning','Settling','Known','Solid'].map((l,idx)=><div key={l} className="flex items-center gap-3"><div style={{fontSize:13,color:T.cream,width:82}}>{l}</div><div className="flex-1" style={{height:8,borderRadius:99,background:'rgba(242,233,220,.08)'}}><div style={{width:`${Math.round(boxes[idx]/ALL_CARDS.length*100)}%`,height:'100%',background:BAND[idx],borderRadius:99}}/></div><div style={{fontFamily:mono,fontSize:12,color:T.sand,width:28,textAlign:'right'}}>{boxes[idx]}</div></div>)}</div>
     <div className="p-4 mb-4" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>
+      <div className="flex items-center justify-between"><div><div style={{fontFamily:serif,fontSize:18,color:T.cream}}>Tutor performance</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Your last {recentTutor.length || 0} scored replies</div></div><div style={{fontFamily:serif,fontSize:30,color:tutorAvg>=70?T.jade:T.marigold}}>{tutorAvg || '—'}{tutorAvg?'%':''}</div></div>
+      {recentTutor.length>0&&<div className="flex items-end gap-1 mt-4" style={{height:54}}>{recentTutor.map((x,i)=><div key={i} title={`${x.score}%`} style={{flex:1,height:`${Math.max(10,x.score)}%`,borderRadius:'5px 5px 2px 2px',background:x.score>=70?T.jade:T.marigold,opacity:.85}}/>)}</div>}
+      {scenarioStats.length>0&&<div className="mt-4 pt-3" style={{borderTop:`1px solid ${T.line}`}}><div style={{fontFamily:mono,fontSize:9,color:T.sand,letterSpacing:'.1em'}}>FOCUS NEXT</div><div style={{fontSize:13.5,color:T.cream,marginTop:6}}>{scenarioStats[0].title} · {scenarioStats[0].avg}% average</div></div>}
+    </div>
+    <div className="p-4 mb-4" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>
       <div style={{fontFamily:serif,fontSize:18,color:T.cream}}>Move your progress</div><div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:4}}>Until cloud sync is added, export a backup on one device and import it on another.</div>
       <div className="grid grid-cols-2 gap-2 mt-4"><button onClick={backup} className="py-3" style={{borderRadius:12,background:T.marigold,border:'none',color:T.ground,fontWeight:800}}>Export backup</button><button onClick={()=>importRef.current?.click()} className="py-3" style={{borderRadius:12,background:'transparent',border:`1px solid ${T.line}`,color:T.cream}}>Import backup</button></div>
       <input ref={importRef} type="file" accept="application/json,.json" onChange={restore} style={{display:'none'}}/>
@@ -522,7 +590,7 @@ function ProgressView({progress,reset}){
 }
 
 export default function App(){
-  const {state,grade,reset,loaded}=useProgress(); const say=useSpeech(); const [tab,setTab]=useState('mazos'),[studyDeck,setStudyDeck]=useState(null),[quizPool,setQuizPool]=useState(null),[gramTab,setGramTab]=useState('reglas'),[hablarTab,setHablarTab]=useState('dilo'),[quizMode,setQuizMode]=useState('leer');
+  const {state,grade,recordTutor,reset,loaded}=useProgress(); const say=useSpeech(); const [tab,setTab]=useState('mazos'),[studyDeck,setStudyDeck]=useState(null),[quizPool,setQuizPool]=useState(null),[gramTab,setGramTab]=useState('reglas'),[hablarTab,setHablarTab]=useState('dilo'),[quizMode,setQuizMode]=useState('leer');
   const dueCards=useMemo(()=>ALL_CARDS.filter(c=>state.cards[c.id]&&state.cards[c.id].due<=Date.now()),[state]);
   const studyQueue=useMemo(()=>{if(!studyDeck)return[];if(studyDeck==='__due')return shuffle(dueCards).slice(0,20);const cards=ALL_CARDS.filter(c=>c.deck===studyDeck),ready=cards.filter(c=>!state.cards[c.id]||state.cards[c.id].due<=Date.now());return [...(ready.length?ready:cards)].sort((a,b)=>(state.cards[a.id]?.box||0)-(state.cards[b.id]?.box||0)).slice(0,20)},[studyDeck,state,dueCards]);
   const studyTitle=studyDeck==='__due'?'Repaso':DECKS.find(d=>d.id===studyDeck)?.name||'Estudio'; const poolFor=id=>id==='all'?ALL_CARDS:ALL_CARDS.filter(c=>c.deck===id);
@@ -530,7 +598,7 @@ export default function App(){
   let body;
   if(!loaded) body=<div className="px-5 pt-24 text-center" style={{fontFamily:mono,fontSize:12,color:T.sand}}>CARGANDO…</div>;
   else if(tab==='mazos') body=studyDeck?<Study queue={studyQueue} progress={state} grade={grade} say={say} title={studyTitle} onBack={()=>setStudyDeck(null)}/>:<Home progress={state} dueCount={dueCards.length} onOpen={setStudyDeck} onReview={()=>setStudyDeck('__due')}/>;
-  else if(tab==='tutor') body=<Tutor grade={grade} say={say}/>;
+  else if(tab==='tutor') body=<Tutor grade={grade} recordTutor={recordTutor} say={say}/>;
   else if(tab==='gramatica') body=<><Header title="Cómo se arma" sub="grammar and word order"/><Segmented value={gramTab} onChange={setGramTab} options={[["reglas","Reglas"],["armar","Armar"]]}/>{gramTab==='reglas'?<Lessons say={say}/>:<Builder grade={grade} say={say}/>}</>;
   else if(tab==='hablar') body=<><Header title="Hablar" sub="produce it out loud"/><Segmented value={hablarTab} onChange={setHablarTab} options={[["dilo","Dilo tú"],["pronuncia","Pronuncia"],["convo","Conversar"]]}/>{hablarTab==='dilo'?<SayIt grade={grade} say={say}/>:hablarTab==='pronuncia'?<PronunciationCoach grade={grade} say={say}/>:<Convos say={say}/>}</>;
   else if(tab==='quiz') body=quizPool?<Quiz pool={poolFor(quizPool)} grade={grade} say={say} listening={quizMode==='escuchar'} onBack={()=>setQuizPool(null)}/>:<><Segmented value={quizMode} onChange={setQuizMode} options={[["leer","Leer"],["escuchar","Escuchar"]]}/><DeckPicker title={quizMode==='leer'?'Práctica':'Al oído'} sub={quizMode==='leer'?'read it, pick the meaning':'hear it, pick the meaning'} onPick={setQuizPool}/></>;

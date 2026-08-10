@@ -1,7 +1,7 @@
 {
   "name": "poco-a-poco",
   "private": true,
-  "version": "3.0.0",
+  "version": "4.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -9,9 +9,8 @@
     "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
     "lucide-react": "latest",
-    "vite": "latest",
+    "vite": "8.2.1",
     "vite-plugin-pwa": "latest",
     "react": "latest",
     "react-dom": "latest"
