@@ -1,12 +1,13 @@
-# Poco a Poco v9
+# Poco a Poco v10
 
-Offline-first Spanish practice for real life in Guatemala.
+Offline-first Spanish practice for life in Guatemala.
 
-v9 combines:
-- adaptive multi-turn Smart Coach
-- missions and confidence tracking
-- local weak-language memory
-- voice-first Speaking Lab
-- shadowing and fluency practice
+v10 includes:
+- Living Journey
+- Missions
+- Adaptive Smart Coach
+- Personas
+- Speaking Lab
+- local progress and memory
 
-See `V9_README.md`.
+No paid API is required.

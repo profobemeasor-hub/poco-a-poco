@@ -1,5 +1,5 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {Home,Map,MessageCircle,Layers,BarChart3,ChevronRight,ChevronLeft,Volume2,Mic,Check,Flame,Target,Sparkles,Play,RotateCcw,Send,UserRound,BookOpen,Shuffle,Brain,AudioLines,Timer} from 'lucide-react';
+import {Home,Map,MessageCircle,Layers,BarChart3,ChevronRight,ChevronLeft,Volume2,Mic,Check,Flame,Target,Sparkles,Play,RotateCcw,Send,UserRound,BookOpen,Shuffle,Brain,AudioLines,Timer,Users,Drama} from 'lucide-react';
 import {CHAPTERS,CHARACTERS,MISSIONS,SCENARIOS,CONFIDENCE_LABELS} from './data/living';
 import {useLivingProgress} from './hooks/useLivingProgress';
 
@@ -82,6 +82,7 @@ function Dashboard({lp,onGo}){const {state,weakest}=lp; const mission=MISSIONS.f
  <div style={{padding:'30px 20px 18px'}}><div style={{fontFamily:mono,fontSize:10,color:T.sand,letterSpacing:'.14em'}}>{today().toUpperCase()} · LIVE GUATEMALA</div><h1 style={{fontFamily:serif,fontWeight:400,fontSize:38,lineHeight:1.05,margin:'10px 0 8px'}}>Poco a poco<span style={{color:T.marigold}}>.</span></h1><div style={{color:T.sand,fontSize:14}}>Speak more, hesitate less — everyday Guatemala first.</div></div>
  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,padding:'0 20px 14px'}}><div style={{...card,padding:14}}><div style={{fontFamily:mono,fontSize:9,color:T.sand,letterSpacing:'.1em'}}>XP</div><div style={{fontFamily:serif,fontSize:27,marginTop:4}}>{state.xp}</div></div><div style={{...card,padding:14}}><div style={{fontFamily:mono,fontSize:9,color:T.sand,letterSpacing:'.1em'}}>ADAPTIVE FOCUS</div><div style={{fontFamily:serif,fontSize:20,color:T.marigold,marginTop:7}}>{weakLabel}</div></div></div>
  <div style={{padding:'0 20px 14px'}}><button onClick={()=>onGo('missions')} style={{...card,width:'100%',textAlign:'left',padding:18,color:T.cream,background:'linear-gradient(145deg,#1B4543,#143836)'}}><div style={{fontFamily:mono,fontSize:10,color:T.marigold,letterSpacing:'.13em'}}>TODAY'S REAL-WORLD MISSION</div><div style={{display:'flex',alignItems:'center',gap:13,marginTop:12}}><div style={{fontSize:34}}>{mission.icon}</div><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:22}}>{mission.title}</div><div style={{fontSize:13,color:T.sand,marginTop:3}}>{mission.place}</div></div><ChevronRight color={T.marigold}/></div></button></div>
+ <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('personas')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12,borderColor:T.violet}}><div style={{width:42,height:42,borderRadius:14,background:T.raised,display:'grid',placeItems:'center'}}><Users size={21} color={T.violet}/></div><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Personas</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Practice with recurring real-life characters</div></div><ChevronRight color={T.violet}/></button></div>
  <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('speaking')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12,borderColor:T.jade}}><div style={{width:42,height:42,borderRadius:14,background:T.raised,display:'grid',placeItems:'center'}}><AudioLines size={21} color={T.jade}/></div><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Speaking Lab</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Shadow · fluency · recognition match</div></div><ChevronRight color={T.jade}/></button></div>
  <div style={{padding:'0 20px'}}><div style={{fontFamily:mono,fontSize:10,color:T.sand,letterSpacing:'.12em',margin:'10px 0'}}>CONTINUE YOUR JOURNEY</div>{CHAPTERS.slice(0,3).map(ch=><button key={ch.id} onClick={()=>onGo('journey',ch.id)} style={{...card,width:'100%',padding:15,marginBottom:9,color:T.cream,textAlign:'left',display:'flex',gap:13,alignItems:'center'}}><div style={{fontSize:28}}>{ch.icon}</div><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>{ch.n}. {ch.title}</div><div style={{fontSize:12.5,color:T.sand,margin:'3px 0 8px'}}>{ch.en}</div><ProgressBar value={state.confidence[ch.confidence]||0} color={ch.color}/></div><div style={{fontFamily:mono,fontSize:11,color:ch.color}}>{state.confidence[ch.confidence]||0}%</div></button>)}</div>
  </>}
@@ -427,6 +428,174 @@ function SmartCoach({lp}){
   </>;
 }
 
+
+function Personas({lp}){
+  const [personaId,setPersonaId]=useState(null);
+  const [sceneId,setSceneId]=useState(null);
+  const [turn,setTurn]=useState(0);
+  const [answer,setAnswer]=useState('');
+  const [feedback,setFeedback]=useState(null);
+  const [listening,setListening]=useState(false);
+
+  const persona=PERSONAS.find(p=>p.id===personaId);
+  const scene=PERSONA_SCENES.find(s=>s.id===sceneId);
+  const related=persona?PERSONA_SCENES.filter(s=>s.persona===persona.id):[];
+
+  const cannedTurns = {
+    'maria-morning':[
+      ['¡Buenos días! ¿Qué le preparo hoy?',['me regala','por favor'],'Buenos días. ¿Me regala un americano grande, sin azúcar, por favor?'],
+      ['Claro. ¿Lo quiere caliente o frío?',['caliente'],'Caliente, por favor.'],
+      ['Perfecto. ¿Y qué tal su mañana?',['bien','y usted'],'Bien, gracias. Todo tranquilo. ¿Y usted?']
+    ],
+    'jose-ride':[
+      ['Buenas, ¿prefiere la ruta rápida o evitar el tráfico?',['prefiero','tráfico'],'Prefiero evitar el tráfico, por favor.'],
+      ['¿Lleva mucho tiempo viviendo aquí?',['vivo','aquí'],'Sí, vivo aquí desde hace un tiempo.'],
+      ['Ya casi llegamos. ¿Dónde lo dejo?',['aquí está bien'],'Aquí está bien, muchas gracias.']
+    ],
+    'sofia-weekend':[
+      ['¡Hola! ¿Qué hiciste el fin de semana?',['fui','estuve'],'El sábado fui a comer y después estuve en casa.'],
+      ['¿Y te gustó el lugar?',['sí','me gustó'],'Sí, me gustó mucho. La comida estuvo muy buena.'],
+      ['¿Qué vas a hacer el próximo sábado?',['voy a'],'Voy a descansar y después voy a salir.']
+    ],
+    'miguel-delivery':[
+      ['Jefe, tiene una entrega en la garita.',['para mí'],'Sí, la entrega es para mí.'],
+      ['¿Quiere que lo deje pasar?',['puede subir'],'Sí, puede subir, por favor.'],
+      ['Perfecto. ¿Algo más?',['eso es todo','gracias'],'Eso es todo, muchas gracias.']
+    ],
+    'ana-visit':[
+      ['¿Qué síntomas tiene y desde cuándo?',['me duele','desde'],'Me duele la cabeza desde ayer.'],
+      ['¿Tiene fiebre?',['no tengo','fiebre'],'No tengo fiebre, pero estoy cansado.'],
+      ['¿Ha tomado algo?',['tomé'],'Sí, tomé acetaminofén esta mañana.']
+    ],
+    'diego-card':[
+      ['¿Qué problema tiene con la tarjeta?',['tarjeta','rechazada'],'Mi tarjeta fue rechazada ayer.'],
+      ['¿Fue una compra local?',['compra','local'],'Sí, fue una compra local.'],
+      ['Parece un bloqueo. ¿Desea que lo quite?',['sí','desbloquear'],'Sí, por favor. Quisiera desbloquear la tarjeta.']
+    ],
+    'lucia-dinner':[
+      ['Buenas noches. ¿Mesa para cuántos?',['para dos'],'Para dos, por favor.'],
+      ['¿Ya saben qué van a pedir?',['recomienda'],'¿Cuál me recomienda?'],
+      ['¿Algo más?',['cuenta','por favor'],'No, gracias. La cuenta, por favor.']
+    ],
+    'market-buy':[
+      ['Buenas, ¿qué busca?',['busco'],'Busco aguacates. ¿A cómo están?'],
+      ['Tres por diez. ¿Cuántos quiere?',['llevo'],'Si llevo seis, ¿me hace un descuento?'],
+      ['Está bien, se los dejo más baratos.',['gracias'],'Perfecto, muchas gracias.']
+    ],
+    'laura-maintenance':[
+      ['Me dijeron que hay un problema. ¿Qué pasó?',['problema','desde'],'Tengo un problema con el agua desde esta mañana.'],
+      ['¿Es en todo el apartamento?',['todo','apartamento'],'Sí, no hay agua en todo el apartamento.'],
+      ['Mantenimiento puede ir esta tarde. ¿Puede estar?',['puedo estar'],'Sí, puedo estar aquí esta tarde.']
+    ],
+    'officer-entry':[
+      ['¿Cuál es el motivo de su visita?',['vengo','trabajo'],'Vengo por trabajo.'],
+      ['¿Cuánto tiempo va a estar en Guatemala?',['voy a estar'],'Voy a estar varios meses.'],
+      ['¿Dónde se va a hospedar?',['voy a vivir'],'Voy a vivir en la Ciudad de Guatemala.']
+    ]
+  };
+
+  const turns=scene?cannedTurns[scene.id]||[]:[];
+  const current=turns[turn];
+
+  const speakInput=()=>{
+    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){alert('Speech recognition is not available here. Type your answer instead.');return}
+    const r=new SR(); r.lang='es-GT'; r.interimResults=false; r.continuous=false;
+    r.onstart=()=>setListening(true); r.onend=()=>setListening(false); r.onerror=()=>setListening(false);
+    r.onresult=e=>setAnswer(e.results[0][0].transcript);
+    r.start();
+  };
+
+  if(!persona){
+    return <>
+      <Header title="Personas" sub="Same people · different speaking styles"/>
+      <div style={{padding:'0 20px 28px'}}>
+        <div style={{...card,padding:16,marginBottom:12,borderColor:T.violet}}>
+          <div style={{display:'flex',gap:9,alignItems:'center'}}><Drama size={19} color={T.violet}/><div style={{fontFamily:serif,fontSize:20}}>Practice with people, not menus</div></div>
+          <div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:6}}>Each persona has a different tone, speed and conversational purpose. Repeat scenes until the style feels familiar.</div>
+        </div>
+        {PERSONAS.map(p=><button key={p.id} onClick={()=>setPersonaId(p.id)} style={{...card,width:'100%',padding:16,marginBottom:9,color:T.cream,textAlign:'left',display:'flex',gap:12,alignItems:'center'}}>
+          <div style={{fontSize:31}}>{p.avatar}</div>
+          <div style={{flex:1}}>
+            <div style={{display:'flex',alignItems:'baseline',gap:7}}><div style={{fontFamily:serif,fontSize:19}}>{p.name}</div><div style={{fontFamily:mono,fontSize:9,color:p.difficulty==='Easy'?T.jade:p.difficulty==='Medium'?T.marigold:T.rose}}>{p.difficulty.toUpperCase()}</div></div>
+            <div style={{fontSize:12.5,color:T.sand,marginTop:2}}>{p.role} · {p.style}</div>
+          </div><ChevronRight color={T.sand}/>
+        </button>)}
+      </div>
+    </>;
+  }
+
+  if(!scene){
+    return <>
+      <Header title={persona.name} sub={`${persona.role} · ${persona.style}`} onBack={()=>setPersonaId(null)}/>
+      <div style={{padding:'0 20px 28px'}}>
+        <div style={{...card,padding:18,borderColor:T.violet}}>
+          <div style={{fontSize:48}}>{persona.avatar}</div>
+          <div style={{fontFamily:serif,fontSize:24,marginTop:8}}>{persona.description}</div>
+          <div style={{fontFamily:mono,fontSize:9,color:T.sand,letterSpacing:'.1em',marginTop:14}}>HOW THIS PERSON SPEAKS</div>
+          {persona.habits.map(h=><div key={h} style={{fontSize:13.5,color:T.sand,marginTop:6}}>• {h}</div>)}
+          <button onClick={()=>say(persona.opener,.88)} style={{width:'100%',padding:12,marginTop:14,borderRadius:12,border:`1px solid ${T.line}`,background:T.raised,color:T.cream}}><Volume2 size={17} style={{verticalAlign:'middle',marginRight:7}}/>Hear their opening line</button>
+        </div>
+        <div style={{fontFamily:mono,fontSize:9,color:T.sand,letterSpacing:'.1em',margin:'16px 0 8px'}}>SCENES</div>
+        {related.map(sc=><button key={sc.id} onClick={()=>{setSceneId(sc.id);setTurn(0);setAnswer('');setFeedback(null)}} style={{...card,width:'100%',padding:15,marginBottom:8,color:T.cream,textAlign:'left'}}>
+          <div style={{fontFamily:serif,fontSize:18}}>{sc.title}</div>
+          <div style={{fontSize:12.5,color:T.sand,marginTop:3}}>{sc.goal}</div>
+        </button>)}
+      </div>
+    </>;
+  }
+
+  if(turn>=turns.length){
+    return <>
+      <Header title={persona.name} sub="Scene complete" onBack={()=>{setSceneId(null);setTurn(0)}}/>
+      <div style={{padding:'0 20px 28px'}}>
+        <div style={{...card,padding:22,textAlign:'center',borderColor:T.jade}}>
+          <div style={{fontSize:49}}>{persona.avatar}</div>
+          <div style={{fontFamily:serif,fontSize:25,marginTop:8}}>Conversation complete</div>
+          <div style={{fontSize:13.5,color:T.sand,lineHeight:1.55,marginTop:8}}>Run it again later. Familiarity with the person and situation is the point.</div>
+          <button onClick={()=>{setTurn(0);setAnswer('');setFeedback(null)}} style={{width:'100%',padding:13,borderRadius:13,border:0,background:T.jade,color:T.ground,fontWeight:750,marginTop:14}}>Repeat scene</button>
+          <button onClick={()=>{setSceneId(null);setTurn(0)}} style={{width:'100%',padding:13,borderRadius:13,border:`1px solid ${T.line}`,background:'transparent',color:T.cream,marginTop:8}}>Back to {persona.name}</button>
+        </div>
+      </div>
+    </>;
+  }
+
+  const submit=()=>{
+    const [theirLine,keys,model]=current;
+    const detail=scoreAnswer(answer,keys);
+    setFeedback({...detail,model});
+    lp.recordCoachTurn({scenarioId:`persona:${scene.id}`,area:'social',score:detail.score,missing:detail.missing,mistakes:detail.mistakes});
+    say(model,.84);
+  };
+
+  return <>
+    <Header title={scene.title} sub={`${persona.name} · turn ${turn+1} of ${turns.length}`} onBack={()=>{setSceneId(null);setTurn(0)}}/>
+    <div style={{padding:'0 20px 28px'}}>
+      <div style={{...card,padding:17,marginBottom:10}}>
+        <div style={{display:'flex',gap:10,alignItems:'center'}}><div style={{fontSize:30}}>{persona.avatar}</div><div><div style={{fontFamily:mono,fontSize:9,color:T.violet}}>{persona.name.toUpperCase()}</div><div style={{fontFamily:serif,fontSize:21,marginTop:3}}>{current[0]}</div></div></div>
+        <button onClick={()=>say(current[0],.88)} style={{...btnIcon,marginTop:12}}><Volume2 size={17}/></button>
+      </div>
+
+      <div style={{...card,padding:17,background:T.raised}}>
+        <div style={{fontFamily:mono,fontSize:9,color:T.jade}}>YOUR TURN</div>
+        <textarea value={answer} onChange={e=>setAnswer(e.target.value)} disabled={!!feedback} placeholder="Answer naturally in Spanish…" style={{width:'100%',boxSizing:'border-box',minHeight:90,marginTop:10,padding:12,borderRadius:12,border:`1px solid ${T.line}`,background:T.ground,color:T.cream,fontSize:16}}/>
+        <div style={{display:'flex',gap:8,marginTop:9}}>
+          <button onClick={speakInput} disabled={!!feedback} style={{flex:1,padding:12,borderRadius:12,border:`1px solid ${T.line}`,background:'transparent',color:listening?T.rose:T.cream}}><Mic size={16} style={{verticalAlign:'middle',marginRight:6}}/>{listening?'Listening…':'Speak'}</button>
+          <button onClick={submit} disabled={!answer.trim()||!!feedback} style={{flex:1,padding:12,borderRadius:12,border:0,background:answer.trim()&&!feedback?T.jade:T.surface,color:answer.trim()&&!feedback?T.ground:T.sand,fontWeight:700}}>Check</button>
+        </div>
+      </div>
+
+      {feedback&&<div style={{...card,padding:17,marginTop:10,borderColor:feedback.score>=70?T.jade:T.marigold}}>
+        <div style={{display:'flex',justifyContent:'space-between'}}><div style={{fontFamily:serif,fontSize:20}}>Communication</div><div style={{fontFamily:serif,fontSize:31,color:feedback.score>=70?T.jade:T.marigold}}>{feedback.score}%</div></div>
+        <div style={{fontFamily:mono,fontSize:9,color:T.sand,marginTop:12}}>NATURAL MODEL</div>
+        <div style={{fontFamily:serif,fontSize:19,lineHeight:1.4,marginTop:6}}>{feedback.model}</div>
+        <button onClick={()=>{setTurn(t=>t+1);setAnswer('');setFeedback(null)}} style={{width:'100%',padding:12,marginTop:12,borderRadius:12,border:0,background:T.marigold,color:T.ground,fontWeight:750}}>Continue <ChevronRight size={16} style={{verticalAlign:'middle'}}/></button>
+      </div>}
+    </div>
+  </>;
+}
+
+
 function SpeakingLab({lp}){
   const [idx,setIdx]=useState(0);
   const [heard,setHeard]=useState('');
@@ -628,5 +797,5 @@ function Progress({lp}){
 }
 function Study(){const phrases=[['¿Me regala un café, por favor?','Could I have a coffee, please?'],['¿Dónde queda la entrada?','Where is the entrance?'],['Aquí está bien, gracias.','Here is fine, thank you.'],['¿Cuál me recomienda?','Which do you recommend?'],['Fíjese que tengo un problema.','The thing is, I have a problem.'],['¿Cómo amaneció?','How are you this morning?'],['Todavía no, pero ya casi.','Not yet, but almost.'],['¿Me puede ayudar?','Can you help me?']];const [i,setI]=useState(0);const [show,setShow]=useState(false);const p=phrases[i%phrases.length];return <><Header title="Quick Review" sub="Everyday phrases"/><div style={{padding:'0 20px'}}><div onClick={()=>setShow(true)} style={{...card,padding:24,minHeight:250,display:'flex',flexDirection:'column',justifyContent:'center'}}><div style={{fontFamily:serif,fontSize:31,lineHeight:1.25}}>{p[0]}</div><button onClick={e=>{e.stopPropagation();say(p[0])}} style={{...btnIcon,marginTop:16}}><Volume2 size={19}/></button>{show&&<div style={{fontSize:17,color:T.sand,marginTop:22,paddingTop:17,borderTop:`1px solid ${T.line}`}}>{p[1]}</div>}</div><button onClick={()=>{setI(i+1);setShow(false)}} style={{width:'100%',padding:14,borderRadius:14,border:0,background:T.marigold,color:T.ground,fontWeight:750,marginTop:12}}>Next phrase</button></div></>}
 
-export default function App(){const lp=useLivingProgress();const [tab,setTab]=useState('home');const [journeySelected,setJourneySelected]=useState(null);const nav=[['home','Home',Home],['journey','Journey',Map],['missions','Missions',Target],['coach','Coach',MessageCircle],['speaking','Speak',AudioLines],['progress','Progress',BarChart3]]; const go=(t,id)=>{setTab(t);if(t==='journey')setJourneySelected(id||null)}; let body=tab==='home'?<Dashboard lp={lp} onGo={go}/>:tab==='journey'?<Journey lp={lp} selected={journeySelected} setSelected={setJourneySelected}/>:tab==='missions'?<Missions lp={lp}/>:tab==='coach'?<SmartCoach lp={lp}/>:tab==='speaking'?<SpeakingLab lp={lp}/>:tab==='progress'?<Progress lp={lp}/>:<Study/>;
- return <Shell><style>{`*{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:active{transform:scale(.99)}button:focus-visible,textarea:focus-visible{outline:2px solid ${T.marigold};outline-offset:2px}`}</style>{body}<nav style={{position:'fixed',left:0,right:0,bottom:0,background:'rgba(14,43,42,.96)',backdropFilter:'blur(12px)',borderTop:`1px solid ${T.line}`,zIndex:10}}><div style={{maxWidth:520,margin:'0 auto',display:'flex'}}>{nav.map(([id,label,Icon])=><button key={id} onClick={()=>go(id)} style={{flex:1,padding:'12px 3px 18px',border:0,background:'transparent',color:tab===id?T.marigold:T.sand,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}><Icon size={18}/><span style={{fontFamily:mono,fontSize:7.7,letterSpacing:'.035em'}}>{label.toUpperCase()}</span></button>)}</div></nav></Shell>}
+export default function App(){const lp=useLivingProgress();const [tab,setTab]=useState('home');const [journeySelected,setJourneySelected]=useState(null);const nav=[['home','Home',Home],['journey','Journey',Map],['missions','Missions',Target],['coach','Coach',MessageCircle],['personas','People',Users],['speaking','Speak',AudioLines],['progress','Progress',BarChart3]]; const go=(t,id)=>{setTab(t);if(t==='journey')setJourneySelected(id||null)}; let body=tab==='home'?<Dashboard lp={lp} onGo={go}/>:tab==='journey'?<Journey lp={lp} selected={journeySelected} setSelected={setJourneySelected}/>:tab==='missions'?<Missions lp={lp}/>:tab==='coach'?<SmartCoach lp={lp}/>:tab==='personas'?<Personas lp={lp}/>:tab==='speaking'?<SpeakingLab lp={lp}/>:tab==='progress'?<Progress lp={lp}/>:<Study/>;
+ return <Shell><style>{`*{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:active{transform:scale(.99)}button:focus-visible,textarea:focus-visible{outline:2px solid ${T.marigold};outline-offset:2px}`}</style>{body}<nav style={{position:'fixed',left:0,right:0,bottom:0,background:'rgba(14,43,42,.96)',backdropFilter:'blur(12px)',borderTop:`1px solid ${T.line}`,zIndex:10}}><div style={{maxWidth:520,margin:'0 auto',display:'flex'}}>{nav.map(([id,label,Icon])=><button key={id} onClick={()=>go(id)} style={{flex:1,padding:'12px 3px 18px',border:0,background:'transparent',color:tab===id?T.marigold:T.sand,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}><Icon size={18}/><span style={{fontFamily:mono,fontSize:7.1,letterSpacing:'.025em'}}>{label.toUpperCase()}</span></button>)}</div></nav></Shell>}

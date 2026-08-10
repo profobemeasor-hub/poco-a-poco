@@ -134,3 +134,90 @@ export const SCENARIOS = [
 export const CONFIDENCE_LABELS = {
  arrival:'Arrival', daily:'Daily life', social:'Social', transport:'Getting around', shopping:'Shopping', food:'Restaurants', home:'Home', bank:'Banking', health:'Health', business:'Business'
 };
+
+
+export const PERSONAS = [
+  {
+    id:'maria', avatar:'☕', name:'María', role:'Café owner',
+    style:'Warm and quick', difficulty:'Easy',
+    description:'Friendly, remembers your usual order, asks short follow-up questions.',
+    habits:['Uses usted','Speaks quickly but clearly','Often asks “¿Algo más?”'],
+    opener:'¡Buenos días! ¿Lo de siempre o quiere algo diferente hoy?'
+  },
+  {
+    id:'jose', avatar:'🚕', name:'José', role:'Uber driver',
+    style:'Talkative and relaxed', difficulty:'Medium',
+    description:'Likes small talk about traffic, Guatemala, weekends and where you are from.',
+    habits:['Informal rhythm','Asks personal but friendly questions','Uses “ahorita” naturally'],
+    opener:'Buenas, ¿cómo está? ¿Vamos por la ruta rápida o evitamos el tráfico?'
+  },
+  {
+    id:'sofia', avatar:'👥', name:'Sofía', role:'Friend',
+    style:'Natural and informal', difficulty:'Medium',
+    description:'Pushes you to talk about your weekend, interests and plans.',
+    habits:['Uses tú','Asks follow-ups','Uses casual connectors'],
+    opener:'¡Hola! Hace rato que no hablamos. ¿Qué has hecho estos días?'
+  },
+  {
+    id:'miguel', avatar:'🛡️', name:'Miguel', role:'Building security',
+    style:'Practical and polite', difficulty:'Easy',
+    description:'Daily greetings, deliveries, visitors, access and apartment issues.',
+    habits:['Uses usted','Short practical questions','Friendly greetings'],
+    opener:'Buenos días, jefe. ¿Todo bien? Tiene una entrega en la garita.'
+  },
+  {
+    id:'ana', avatar:'🏥', name:'Dra. Ana', role:'Doctor',
+    style:'Formal and precise', difficulty:'Hard',
+    description:'Asks structured questions about symptoms, duration and medication.',
+    habits:['Formal usted','Clarifies details','Uses health vocabulary'],
+    opener:'Buenos días. Cuénteme qué síntomas tiene y desde cuándo.'
+  },
+  {
+    id:'diego', avatar:'🏦', name:'Diego', role:'Bank adviser',
+    style:'Formal and detailed', difficulty:'Hard',
+    description:'Handles card issues, transfers, identification and account questions.',
+    habits:['Formal tone','Longer sentences','Requests confirmation'],
+    opener:'Buenas tardes. ¿En qué le puedo ayudar con su cuenta hoy?'
+  },
+  {
+    id:'lucia', avatar:'🍽️', name:'Lucía', role:'Restaurant server',
+    style:'Friendly and efficient', difficulty:'Medium',
+    description:'Takes orders, recommends dishes and handles changes or payment.',
+    habits:['Uses usted','Asks preference questions','Speaks naturally'],
+    opener:'Buenas noches. Bienvenido. ¿Mesa para cuántos?'
+  },
+  {
+    id:'carlos-market', avatar:'🛒', name:'Carlos', role:'Market vendor',
+    style:'Fast and persuasive', difficulty:'Hard',
+    description:'Quotes prices quickly, offers alternatives and negotiates.',
+    habits:['Fast numbers','Short phrases','Market vocabulary'],
+    opener:'¡Pase adelante! ¿Qué busca? Hoy tengo todo fresco.'
+  },
+  {
+    id:'laura', avatar:'🏠', name:'Laura', role:'Landlord / property manager',
+    style:'Polite and solution-focused', difficulty:'Medium',
+    description:'Handles maintenance, utilities, access and scheduling.',
+    habits:['Formal but friendly','Talks about timing','Confirms appointments'],
+    opener:'Hola, Richard. Me dijeron que hay un problema en el apartamento. ¿Qué pasó?'
+  },
+  {
+    id:'officer', avatar:'✈️', name:'Oficial', role:'Immigration officer',
+    style:'Brief and formal', difficulty:'Hard',
+    description:'Asks direct travel, residency and document questions.',
+    habits:['Formal','Direct questions','Little small talk'],
+    opener:'Buenas tardes. ¿Cuál es el motivo de su visita?'
+  }
+];
+
+export const PERSONA_SCENES = [
+  {id:'maria-morning', persona:'maria', title:'Morning coffee', goal:'Order naturally and make one line of small talk', keywords:['me regala','sin azúcar','por favor']},
+  {id:'jose-ride', persona:'jose', title:'Ride across the city', goal:'Discuss route, traffic and where to stop', keywords:['prefiero','tráfico','aquí está bien']},
+  {id:'sofia-weekend', persona:'sofia', title:'Weekend catch-up', goal:'Describe what you did and ask a follow-up', keywords:['fui','estuve','y tú']},
+  {id:'miguel-delivery', persona:'miguel', title:'Delivery at the gate', goal:'Confirm the delivery and give access instructions', keywords:['para mí','puede subir','gracias']},
+  {id:'ana-visit', persona:'ana', title:'Doctor visit', goal:'Explain symptoms, timing and medicine', keywords:['me duele','desde','tomé']},
+  {id:'diego-card', persona:'diego', title:'Declined card', goal:'Explain the problem and request action', keywords:['tarjeta','rechazada','desbloquear']},
+  {id:'lucia-dinner', persona:'lucia', title:'Dinner out', goal:'Order, ask for recommendation and pay', keywords:['recomienda','quisiera','la cuenta']},
+  {id:'market-buy', persona:'carlos-market', title:'Market negotiation', goal:'Ask price, quantity and negotiate politely', keywords:['a cómo','llevo','descuento']},
+  {id:'laura-maintenance', persona:'laura', title:'Apartment maintenance', goal:'Explain the issue and agree a visit time', keywords:['problema','desde','puedo estar']},
+  {id:'officer-entry', persona:'officer', title:'Immigration desk', goal:'Answer clearly about purpose and stay', keywords:['vengo','trabajo','voy a estar']}
+];

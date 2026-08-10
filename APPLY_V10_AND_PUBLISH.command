@@ -3,7 +3,7 @@ set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TARGET="$HOME/Quetzal/Confidential/Spanish App/poco-a-poco-github"
 
-echo "Poco a Poco v9 — Speaking Lab"
+echo "Poco a Poco v10 — Personas"
 echo "Target: $TARGET"
 
 if [ ! -d "$TARGET/.git" ]; then
@@ -21,7 +21,7 @@ rsync -av --delete \
 
 cd "$TARGET"
 
-echo "2/5 Installing clean dependencies..."
+echo "2/5 Installing dependencies..."
 rm -rf node_modules package-lock.json
 npm install
 
@@ -35,14 +35,14 @@ git add -A
 if git diff --cached --quiet; then
   echo "No code changes to commit."
 else
-  git commit -m "Poco a Poco v9 - Speaking Lab"
+  git commit -m "Poco a Poco v10 - Personas"
 fi
 
 echo "5/5 Publishing..."
 git push
 
 echo ""
-echo "✓ v9 published."
-echo "No OpenAI API, Cloudflare Worker, or paid pronunciation service is required."
+echo "✓ v10 published."
+echo "No paid API or Cloudflare Worker is required."
 echo "Wait for GitHub Actions to turn green, then fully close and reopen the iPhone PWA."
 read "?Press Return to close."
