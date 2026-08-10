@@ -1,7 +1,5 @@
-# Poco a Poco v5
+# Poco a Poco v6
 
-Install locally: `npm install && npm run dev`
+Living-in-Guatemala Spanish PWA with an optional secure Live AI Coach.
 
-Publish over the existing GitHub Pages app by double-clicking `APPLY_V5_AND_PUBLISH.command`.
-
-Live URL after deployment: `https://profobemeasor-hub.github.io/poco-a-poco/`
+Start with `V6_README.md`. To add Live AI and publish the update, run `SETUP_AI_COACH.command` on the Mac that already contains the working `poco-a-poco-github` repository.
