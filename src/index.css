@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { min-height: 100%; margin: 0; }
+html { background: #0E2B2A; }
+body { min-width: 320px; overscroll-behavior-y: none; }
+button { font: inherit; }
+@supports (padding: max(0px)) {
+  .safe-bottom { padding-bottom: max(18px, env(safe-area-inset-bottom)); }
+}
