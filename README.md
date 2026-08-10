@@ -1,3 +1,3 @@
-# Poco a Poco v11 — Mi Vida en Guatemala
+# Poco a Poco v12 — Pronunciation Studio
 
-Offline-first Spanish life simulator. No paid AI service is required.
+Offline-first Spanish living, conversation and pronunciation practice. No paid API required.
