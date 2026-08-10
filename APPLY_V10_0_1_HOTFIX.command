@@ -3,7 +3,7 @@ set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TARGET="$HOME/Quetzal/Confidential/Spanish App/poco-a-poco-github"
 
-echo "Poco a Poco v10 — Personas"
+echo "Poco a Poco v10.0.1 — Personas hotfix"
 echo "Target: $TARGET"
 
 if [ ! -d "$TARGET/.git" ]; then
@@ -35,14 +35,13 @@ git add -A
 if git diff --cached --quiet; then
   echo "No code changes to commit."
 else
-  git commit -m "Poco a Poco v10 - Personas"
+  git commit -m "Poco a Poco v10.0.1 - Personas hotfix"
 fi
 
 echo "5/5 Publishing..."
 git push
 
 echo ""
-echo "✓ v10 published."
-echo "No paid API or Cloudflare Worker is required."
+echo "✓ v10.0.1 published."
 echo "Wait for GitHub Actions to turn green, then fully close and reopen the iPhone PWA."
 read "?Press Return to close."

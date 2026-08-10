@@ -1,6 +1,6 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
 import {Home,Map,MessageCircle,Layers,BarChart3,ChevronRight,ChevronLeft,Volume2,Mic,Check,Flame,Target,Sparkles,Play,RotateCcw,Send,UserRound,BookOpen,Shuffle,Brain,AudioLines,Timer,Users,Drama} from 'lucide-react';
-import {CHAPTERS,CHARACTERS,MISSIONS,SCENARIOS,CONFIDENCE_LABELS} from './data/living';
+import {CHAPTERS,CHARACTERS,MISSIONS,SCENARIOS,CONFIDENCE_LABELS,PERSONAS,PERSONA_SCENES} from './data/living';
 import {useLivingProgress} from './hooks/useLivingProgress';
 
 const T={ground:'#0E2B2A',surface:'#143836',raised:'#1B4543',line:'#27544F',cream:'#F2E9DC',sand:'#BFAE97',marigold:'#E9A33C',jade:'#57B79A',rose:'#DB6A6A',violet:'#9B7BB8'};
