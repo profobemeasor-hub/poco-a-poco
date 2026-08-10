@@ -12,12 +12,12 @@ export const CHAPTERS = [
 ];
 
 export const CHARACTERS = [
-  {id:'maria', avatar:'☕', name:'María', role:'Café owner', note:'Warm, quick speech. Remembers your usual order.', chapter:'daily'},
-  {id:'jose', avatar:'🚕', name:'José', role:'Uber driver', note:'Talkative. Likes football, traffic and weekend chat.', chapter:'getting'},
-  {id:'ana', avatar:'🏥', name:'Dra. Ana', role:'Doctor', note:'Clear formal Spanish. Asks follow-up questions.', chapter:'health'},
-  {id:'diego', avatar:'🏦', name:'Diego', role:'Bank adviser', note:'Polite, formal and detail-oriented.', chapter:'money'},
-  {id:'sofia', avatar:'👥', name:'Sofía', role:'Friend', note:'Natural informal Spanish and social conversation.', chapter:'social'},
-  {id:'miguel', avatar:'🛡️', name:'Miguel', role:'Building security', note:'Daily greetings, deliveries and apartment access.', chapter:'home'},
+  {id:'maria', avatar:'☕', name:'María', role:'Café owner', note:'Warm, quick speech.', chapter:'daily'},
+  {id:'jose', avatar:'🚕', name:'José', role:'Uber driver', note:'Talkative and relaxed.', chapter:'getting'},
+  {id:'ana', avatar:'🏥', name:'Dra. Ana', role:'Doctor', note:'Clear formal Spanish.', chapter:'health'},
+  {id:'diego', avatar:'🏦', name:'Diego', role:'Bank adviser', note:'Polite and detailed.', chapter:'money'},
+  {id:'sofia', avatar:'👥', name:'Sofía', role:'Friend', note:'Natural informal Spanish.', chapter:'social'},
+  {id:'miguel', avatar:'🛡️', name:'Miguel', role:'Building security', note:'Daily greetings and access.', chapter:'home'},
 ];
 
 export const MISSIONS = [
@@ -30,15 +30,105 @@ export const MISSIONS = [
   {id:'phone', icon:'📞', title:'Make one short phone call', place:'Phone', prompt:'Ask for information, confirm it, and close the call in Spanish.', coach:'Start: “Buenas tardes. Le llamo para confirmar…”', confidence:'daily'},
 ];
 
+const t = (prompt, expected, model, tips=[]) => ({prompt, expected, model, tips});
+
 export const SCENARIOS = [
- {id:'coffee-roleplay', chapter:'daily', character:'maria', title:'Your usual coffee', en:'Order, change something, make small talk', opener:'¡Buenos días! ¿Lo de siempre o quiere probar algo diferente hoy?', expected:['Buenos días','me regala','por favor'], model:'Buenos días, María. Hoy quiero algo diferente. ¿Me regala un cappuccino mediano, sin azúcar, por favor?', tips:['Use “¿Me regala…?” for a natural Guatemalan request.','Add one social line: “¿Qué tal su día?”']},
- {id:'uber-roleplay', chapter:'getting', character:'jose', title:'Traffic and route', en:'Tell the driver where and discuss traffic', opener:'Buenas, ¿vamos por la Reforma o prefiere otra ruta?', expected:['prefiero','tráfico'], model:'Buenas. Prefiero ir por la Reforma si hay menos tráfico. Si no, la ruta que usted recomiende está bien.', tips:['“Prefiero…” is softer than a command.','Use “Aquí está bien” when you want to stop.']},
- {id:'friend-roleplay', chapter:'social', character:'sofia', title:'Weekend plans', en:'Talk about what you did and what is next', opener:'¡Hola! ¿Qué hiciste este fin de semana?', expected:['fui','estuve','voy'], model:'El sábado fui a comer y después estuve en casa. Mañana voy a salir a caminar un rato. ¿Y tú?', tips:['Use fui/estuve for completed past actions.','Always throw the conversation back: “¿Y tú?”']},
- {id:'market-roleplay', chapter:'shopping', character:null, title:'At the market', en:'Ask price and negotiate politely', opener:'Pase adelante. ¿Qué está buscando?', expected:['a cómo','descuento'], model:'Buenas. ¿A cómo están los aguacates? Si llevo seis, ¿me hace un descuento?', tips:['“¿A cómo?” is very natural in a market.','Keep bargaining friendly.']},
- {id:'restaurant-roleplay', chapter:'food', character:null, title:'Dinner out', en:'Get a table and order', opener:'Buenas noches. ¿Mesa para cuántos?', expected:['para dos','recomienda'], model:'Para dos, por favor. ¿Cuál me recomienda hoy? Y para mí, sin mucho picante.', tips:['“¿Cuál me recomienda?” keeps the conversation natural.','Use “para mí” when ordering your own dish.']},
- {id:'maintenance-roleplay', chapter:'home', character:'miguel', title:'Apartment problem', en:'Explain a water/internet issue', opener:'Buenas tardes. ¿En qué le puedo ayudar?', expected:['problema','desde'], model:'Buenas tardes. Fíjese que tengo un problema con el agua desde esta mañana. ¿Me puede ayudar a contactar mantenimiento?', tips:['“Fíjese que…” softens the start of a problem.','Use “desde” to say since when.']},
- {id:'bank-roleplay', chapter:'money', character:'diego', title:'Card problem', en:'Explain a declined card', opener:'Buenas tardes. Cuénteme, ¿qué problema tiene con la tarjeta?', expected:['tarjeta','rechazada','ayer'], model:'Buenas tardes. Mi tarjeta fue rechazada ayer dos veces, pero tengo fondos. Quisiera saber si hay algún bloqueo.', tips:['Quisiera is polite and professional.','Explain what happened before asking for action.']},
- {id:'doctor-roleplay', chapter:'health', character:'ana', title:'At the doctor', en:'Describe symptoms clearly', opener:'Buenos días. ¿Qué le pasa y desde cuándo se siente así?', expected:['me duele','desde'], model:'Buenos días. Me duele mucho la cabeza desde ayer y también me siento un poco mareado.', tips:['Body pain uses “me duele…”.','“Desde ayer” = since yesterday.']},
+  {
+    id:'coffee-roleplay', chapter:'daily', character:'maria', title:'Your usual coffee', en:'Order, change something, make small talk',
+    turns:[
+      t(['¡Buenos días! ¿Lo de siempre o quiere probar algo diferente hoy?','Buenos días. ¿Qué le preparo hoy?'],['buenos días','me regala','por favor'],'Buenos días, María. Hoy quiero algo diferente. ¿Me regala un cappuccino mediano, sin azúcar, por favor?',['Use “¿Me regala…?” for a natural Guatemalan request.']),
+      t(['Claro. ¿Lo quiere caliente o frío?','Perfecto. ¿Con leche normal o deslactosada?'],['quiero','caliente'],'Lo quiero caliente y con leche normal, gracias.',['A full sentence helps speaking confidence.']),
+      t(['Muy bien. ¿Y qué tal su mañana?','Listo. ¿Tiene mucho que hacer hoy?'],['bien','hoy'],'Bien, gracias. Hoy tengo algunas cosas que hacer, pero todo tranquilo. ¿Y usted?',['Throw the conversation back with “¿Y usted?”'])
+    ]
+  },
+  {
+    id:'uber-roleplay', chapter:'getting', character:'jose', title:'Taxi / Uber ride', en:'Route, traffic and where to stop',
+    turns:[
+      t(['Buenas, ¿vamos por la Reforma o prefiere otra ruta?','¿Prefiere la ruta rápida o evitar el tráfico?'],['prefiero','tráfico'],'Prefiero la ruta con menos tráfico, por favor.',['“Prefiero…” is softer than a command.']),
+      t(['¿Lleva mucho tiempo viviendo en Guatemala?','¿Es de aquí o está de visita?'],['vivo','guatemala'],'Vivo aquí desde hace un tiempo. Todavía estoy aprendiendo español.',['Use present tense for something still true.']),
+      t(['Ya casi llegamos. ¿Dónde lo dejo?','¿Está bien aquí o sigo un poco más?'],['aquí','bien'],'Aquí está bien, muchas gracias. Que le vaya bien.',['Memorise “Aquí está bien”.'])
+    ]
+  },
+  {
+    id:'friend-roleplay', chapter:'social', character:'sofia', title:'Weekend conversation', en:'Past, plans and follow-up questions',
+    turns:[
+      t(['¡Hola! ¿Qué hiciste este fin de semana?','Cuéntame, ¿cómo estuvo tu fin de semana?'],['fui','estuve'],'El sábado fui a comer y después estuve en casa. ¿Y tú?',['Use fui/estuve for completed actions.']),
+      t(['Yo salí con unos amigos. ¿Te gusta salir o prefieres planes tranquilos?','Fui a Antigua. ¿Has ido últimamente?'],['me gusta','prefiero'],'Me gusta salir, pero también prefiero planes tranquilos algunos días.',['Me gusta + infinitive.']),
+      t(['¿Y qué vas a hacer el próximo fin de semana?','¿Tienes planes para el sábado?'],['voy a','sábado'],'El sábado voy a descansar un poco y después voy a salir.',['Use “voy a + infinitive” for plans.'])
+    ]
+  },
+  {
+    id:'market-roleplay', chapter:'shopping', character:null, title:'At the market', en:'Price, quantity and friendly bargaining',
+    turns:[
+      t(['Pase adelante. ¿Qué está buscando?','Buenas, ¿qué le doy?'],['busco','aguacate'],'Buenas. Busco aguacates. ¿A cómo están?',['“Busco…” is useful when shopping.']),
+      t(['Tres por diez. ¿Cuántos quiere?','Están a cuatro cada uno.'],['llevo','seis'],'Si llevo seis, ¿me hace un descuento?',['Use “si llevo…” to negotiate.']),
+      t(['Se los dejo más baratos. ¿Algo más?','Está bien. ¿Quiere algo más?'],['eso es todo','gracias'],'Eso es todo, muchas gracias. Que le vaya bien.',['Close warmly.'])
+    ]
+  },
+  {
+    id:'restaurant-roleplay', chapter:'food', character:null, title:'Dinner out', en:'Table, recommendation and payment',
+    turns:[
+      t(['Buenas noches. ¿Mesa para cuántos?','Bienvenidos. ¿Cuántas personas?'],['para dos','por favor'],'Para dos, por favor.',['Short and natural is fine.']),
+      t(['Aquí tienen el menú. ¿Ya saben qué van a pedir?','¿Les recomiendo algo?'],['recomienda','sin picante'],'¿Cuál me recomienda? Para mí, algo sin mucho picante.',['Ask for a recommendation instead of defaulting to English.']),
+      t(['¿Desean algo más?','¿Todo bien con la comida?'],['cuenta','por favor'],'Todo muy bien, gracias. La cuenta, por favor.',['“La cuenta, por favor” is enough.'])
+    ]
+  },
+  {
+    id:'maintenance-roleplay', chapter:'home', character:'miguel', title:'Apartment problem', en:'Explain the issue and arrange help',
+    turns:[
+      t(['Buenas tardes. ¿En qué le puedo ayudar?','Buenas, ¿qué problema tiene?'],['problema','desde'],'Fíjese que tengo un problema con el agua desde esta mañana.',['“Fíjese que…” softens bad news.']),
+      t(['¿No tiene agua en todo el apartamento?','¿Es solo en la cocina o en todo el apartamento?'],['todo','apartamento'],'No hay agua en todo el apartamento.',['Use “hay/no hay”.']),
+      t(['Voy a llamar a mantenimiento. ¿Puede estar en casa en una hora?','Mantenimiento puede llegar esta tarde. ¿Le funciona?'],['sí','puedo'],'Sí, puedo estar aquí. Muchas gracias por ayudarme.',['Confirm clearly.'])
+    ]
+  },
+  {
+    id:'bank-roleplay', chapter:'money', character:'diego', title:'Card problem', en:'Explain a declined card and ask for action',
+    turns:[
+      t(['Buenas tardes. Cuénteme, ¿qué problema tiene con la tarjeta?','¿En qué le puedo ayudar con su cuenta?'],['tarjeta','rechazada'],'Mi tarjeta fue rechazada ayer dos veces, pero tengo fondos.',['Explain what happened first.']),
+      t(['¿Fue una compra local o internacional?','¿Recuerda dónde intentó pagar?'],['compra','local'],'Fue una compra local en un restaurante.',['Keep answers specific.']),
+      t(['Voy a revisarlo. ¿Quiere que desbloqueemos la tarjeta si no hay problema?','Parece un bloqueo de seguridad. ¿Desea que lo quite?'],['sí','por favor'],'Sí, por favor. Quisiera que la desbloquearan.',['“Quisiera…” is polite.'])
+    ]
+  },
+  {
+    id:'doctor-roleplay', chapter:'health', character:'ana', title:'At the doctor', en:'Symptoms, duration and follow-up',
+    turns:[
+      t(['Buenos días. ¿Qué le pasa y desde cuándo se siente así?','¿Qué síntomas tiene?'],['me duele','desde'],'Me duele mucho la cabeza desde ayer y me siento mareado.',['Pain uses “me duele…”.']),
+      t(['¿Tiene fiebre, tos o náusea?','¿Ha tenido fiebre?'],['no tengo','fiebre'],'No tengo fiebre, pero estoy un poco cansado.',['Use tener for fever.']),
+      t(['¿Ha tomado algún medicamento?','¿Tomó algo para el dolor?'],['tomé','acetaminofén'],'Sí, tomé acetaminofén esta mañana.',['Use preterite for completed action.'])
+    ]
+  },
+  {
+    id:'pharmacy-roleplay', chapter:'health', character:null, title:'At the pharmacy', en:'Ask for medicine and understand instructions',
+    turns:[
+      t(['Buenas tardes, ¿qué necesita?','¿En qué le puedo ayudar?'],['algo para','dolor'],'¿Tiene algo para el dolor de cabeza?',['“¿Tiene algo para…?” is very reusable.']),
+      t(['¿Tiene alguna alergia?','¿Es alérgico a algún medicamento?'],['no soy','alérgico'],'No soy alérgico a ningún medicamento.',['Use “ser alérgico”.']),
+      t(['Tome una cada ocho horas.','Una tableta cada ocho horas con comida.'],['cada ocho horas','comida'],'Entendido: una cada ocho horas con comida. Gracias.',['Repeat instructions back to confirm.'])
+    ]
+  },
+  {
+    id:'neighbour-roleplay', chapter:'social', character:'sofia', title:'New neighbour', en:'Introduce yourself and keep small talk going',
+    turns:[
+      t(['Hola, creo que no nos conocemos. Soy Sofía.','Buenos días, soy su vecina. ¿Cómo se llama?'],['mucho gusto','soy'],'Mucho gusto, soy Richard. Vivo aquí desde hace poco.',['Introduce yourself simply.']),
+      t(['¿De dónde es?','¿Es nuevo en Guatemala?'],['soy de','vivo aquí'],'Soy de Nigeria y vivo aquí en Guatemala.',['Origin uses ser.']),
+      t(['¿Y qué le gusta hacer los fines de semana?','¿Qué hace normalmente el fin de semana?'],['me gusta','fin de semana'],'Me gusta salir a comer, caminar y conocer lugares nuevos. ¿Y a usted?',['Finish with a follow-up.'])
+    ]
+  },
+  {
+    id:'delivery-roleplay', chapter:'home', character:'miguel', title:'Delivery at the gate', en:'Confirm a delivery and give access instructions',
+    turns:[
+      t(['Jefe, tiene una entrega en la garita.','Hay un mensajero preguntando por usted.'],['entrega','para mí'],'Sí, la entrega es para mí.',['Confirm quickly.']),
+      t(['¿Quiere que lo deje pasar?','¿Puede subir el mensajero?'],['puede','subir'],'Sí, puede subir. Por favor, indíquele el apartamento.',['Use formal instruction politely.']),
+      t(['Perfecto. ¿Algo más?','Listo, ya va para arriba.'],['gracias','eso es todo'],'Eso es todo, muchas gracias.',['Natural close.'])
+    ]
+  },
+  {
+    id:'phone-roleplay', chapter:'daily', character:null, title:'A short phone call', en:'Ask, confirm and close without switching to English',
+    turns:[
+      t(['Buenas tardes, ¿en qué le puedo ayudar?','Buenas tardes. ¿Con quién desea hablar?'],['llamo para','confirmar'],'Buenas tardes. Llamo para confirmar una cita.',['“Llamo para…” gives purpose immediately.']),
+      t(['Claro. ¿A nombre de quién está?','¿Me da su nombre, por favor?'],['a nombre de','richard'],'Está a nombre de Richard.',['Useful phone phrase.']),
+      t(['Sí, está confirmada para mañana a las diez.','Perfecto, lo esperamos mañana a las diez.'],['mañana','diez','gracias'],'Perfecto, mañana a las diez. Muchas gracias por confirmarlo.',['Repeat the key detail back.'])
+    ]
+  },
 ];
 
 export const CONFIDENCE_LABELS = {

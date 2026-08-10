@@ -1,5 +1,9 @@
-# Poco a Poco v7.1
+# Poco a Poco v8
 
 Offline-first Spanish practice for everyday life in Guatemala.
 
-No paid AI API is required. Smart Coach roleplays, missions, speech practice, confidence and progress run locally in the PWA.
+## Core idea
+Practice real conversations rather than isolated vocabulary. Smart Coach now adapts
+to weak situations and recycles missed language locally without a paid AI service.
+
+See `V8_README.md`.
