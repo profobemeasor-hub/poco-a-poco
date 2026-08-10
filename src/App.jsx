@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Volume2, ChevronLeft, Layers, Target, BarChart3, Flame, RotateCcw,
-  Check, X, Sparkles, BookOpen, Mic, Shuffle, Headphones, Eye, Timer
+  Check, X, Sparkles, BookOpen, Mic, Shuffle, Headphones, Eye, Timer, MessageCircle, Brain, Send
 } from 'lucide-react';
 
 const T = {
@@ -218,6 +218,113 @@ const CONVOS = [
   ]}
 ];
 
+
+const TUTOR_SCENARIOS = [
+  {
+    id:'terminal', title:'Terminal shift', subtitle:'Operations & IT', accent:T.jade,
+    opening:'Buenos días. Tenemos una falla en la garita. ¿Qué hacemos primero?',
+    prompts:[
+      {ask:'Tenemos una falla en la garita. ¿Qué hacemos primero?', target:['revis','enlace','switch','ticket','proveedor'], model:'Primero voy a revisar el enlace y el switch. Si siguen bien, levanto un ticket con el proveedor.'},
+      {ask:'El switch está bien, pero el enlace sigue caído. ¿Qué le dices al equipo?', target:['ticket','proveedor','prioridad','actualización'], model:'Levanten un ticket con el proveedor con prioridad alta y denme una actualización cada hora.'},
+      {ask:'Operaciones pregunta si puede continuar. ¿Cómo respondes?', target:['operación','continuar','seguro','impacto','revisando'], model:'Por ahora la operación puede continuar. Estamos revisando el impacto y les aviso si cambia algo.'},
+    ]
+  },
+  {
+    id:'meeting', title:'Morning meeting', subtitle:'Status & follow-up', accent:T.marigold,
+    opening:'Buenos días. ¿Cuál es el estado del respaldo de anoche?',
+    prompts:[
+      {ask:'¿Cuál es el estado del respaldo de anoche?', target:['respaldo','termin','correct','verific'], model:'El respaldo terminó correctamente. Estoy verificando los últimos detalles.'},
+      {ask:'¿Hay algún pendiente con el proveedor?', target:['pendiente','proveedor','seguimiento','respuesta'], model:'Sí, queda un pendiente con el proveedor. Le estoy dando seguimiento y espero respuesta hoy.'},
+      {ask:'¿Cuándo estará listo el informe?', target:['informe','hoy','tarde','mañana'], model:'Voy a terminar el informe hoy por la tarde y se lo envío antes de terminar el día.'},
+    ]
+  },
+  {
+    id:'restaurant', title:'Dinner out', subtitle:'Everyday Guatemala', accent:T.rose,
+    opening:'Buenas noches. ¿Qué le gustaría ordenar?',
+    prompts:[
+      {ask:'¿Qué le gustaría ordenar?', target:['gustaría','recomienda','plato'], model:'Me gustaría algo típico. ¿Qué plato me recomienda?'},
+      {ask:'El pepián está muy bueno. ¿Lo quiere picante?', target:['sin','picante','favor'], model:'Sí, pero sin mucho picante, por favor.'},
+      {ask:'¿Algo más?', target:['cuenta','cuando','pueda','gracias'], model:'Nada más, gracias. La cuenta cuando pueda, por favor.'},
+    ]
+  },
+];
+
+function tutorFeedback(expected, spoken){
+  const score=speechScore(expected, spoken);
+  const text=normalizeSpeech(spoken);
+  const notes=[];
+  if(/\byo fue\b/.test(text)) notes.push('Use “yo fui”, not “yo fue”.');
+  if(/\byo soy en\b/.test(text)) notes.push('For location, use “estoy”: “Estoy en…”.');
+  if(/\bnecesito de\b/.test(text)) notes.push('Usually say “necesito + noun/infinitive” without “de”.');
+  if(/\bno tengo nada no\b/.test(text)) notes.push('Keep the negative together: “No tengo nada.”');
+  return {score, notes};
+}
+
+function Tutor({grade,say}){
+  const [scenario,setScenario]=useState(null);
+  const [step,setStep]=useState(0);
+  const [answer,setAnswer]=useState('');
+  const [result,setResult]=useState(null);
+  const [sessionScore,setSessionScore]=useState([]);
+  const {supported,listening,listen}=useSpeechRecognition();
+  const current=scenario?.prompts?.[step];
+
+  useEffect(()=>{ if(scenario&&current){ say(current.ask,.82); } },[scenario,step]); // eslint-disable-line
+
+  const evaluate=(value)=>{
+    const spoken=(value||answer).trim(); if(!spoken||!current)return;
+    const normalized=normalizeSpeech(spoken);
+    const hits=current.target.filter(k=>normalized.includes(normalizeSpeech(k))).length;
+    const coverage=Math.round(hits/current.target.length*100);
+    const modelMatch=tutorFeedback(current.model,spoken);
+    const score=Math.round(coverage*.65+modelMatch.score*.35);
+    const ok=score>=55;
+    grade(`tutor:${scenario.id}:${step}`,ok,'speak');
+    setResult({score,coverage,notes:modelMatch.notes});
+    setSessionScore(s=>[...s,score]);
+    say(current.model,.82);
+  };
+
+  const speakAnswer=async()=>{
+    try{const heard=await listen();setAnswer(heard);setTimeout(()=>evaluate(heard),120);}catch(e){setResult({error:e.message||'Could not hear you.'});}
+  };
+
+  if(!scenario) return <><Header title="Tutor" sub="adaptive speaking practice"/><div className="px-5 pb-8">
+    <div className="p-5 mb-5" style={{background:'linear-gradient(145deg, rgba(233,163,60,.16), rgba(87,183,154,.10))',border:`1px solid ${T.marigold}`,borderRadius:22}}>
+      <div className="flex items-center gap-2" style={{color:T.marigold}}><Brain size={20}/><span style={{fontFamily:mono,fontSize:10,letterSpacing:'.12em'}}>OFFLINE COACH</span></div>
+      <div style={{fontFamily:serif,fontSize:24,color:T.cream,marginTop:10,lineHeight:1.2}}>Practice the Spanish you actually need.</div>
+      <div style={{fontSize:13.5,color:T.sand,lineHeight:1.55,marginTop:8}}>Answer naturally by voice or text. The coach checks whether you communicated the key idea, then gives you a natural model answer.</div>
+    </div>
+    <div style={{fontFamily:mono,fontSize:10.5,color:T.sand,letterSpacing:'.12em',marginBottom:10}}>CHOOSE A SCENARIO</div>
+    <div className="flex flex-col gap-3">{TUTOR_SCENARIOS.map(x=><button key={x.id} onClick={()=>{setScenario(x);setStep(0);setAnswer('');setResult(null);setSessionScore([])}} className="p-4 text-left" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:18}}>
+      <div className="flex items-center justify-between"><div><div style={{fontFamily:serif,fontSize:19,color:T.cream}}>{x.title}</div><div style={{fontSize:13,color:T.sand,marginTop:2}}>{x.subtitle}</div></div><div style={{width:10,height:10,borderRadius:99,background:x.accent}}/></div>
+    </button>)}</div>
+    <div className="p-4 mt-5" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:16}}><div style={{fontFamily:mono,fontSize:9.5,color:T.marigold,letterSpacing:'.12em'}}>LIVE AI READY</div><div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:6}}>The app is prepared for a secure live-AI endpoint. No API secret is stored in this browser build.</div></div>
+  </div></>;
+
+  if(!current){ const avg=sessionScore.length?Math.round(sessionScore.reduce((a,b)=>a+b,0)/sessionScore.length):0; return <><Header title={scenario.title} onBack={()=>setScenario(null)}/><div className="px-5 text-center pt-8"><div style={{fontFamily:mono,fontSize:10,color:T.sand}}>SESSION SCORE</div><div style={{fontFamily:serif,fontSize:64,color:avg>=70?T.jade:T.marigold}}>{avg}%</div><div style={{fontSize:14,color:T.sand,lineHeight:1.6}}>Repeat the scenario until your answer comes out without translating first.</div><button onClick={()=>{setStep(0);setAnswer('');setResult(null);setSessionScore([])}} className="mt-6 w-full py-4" style={{borderRadius:16,background:T.marigold,border:'none',color:T.ground,fontWeight:800}}>Run it again</button></div></>; }
+
+  return <><Header title={scenario.title} sub={`${step+1} of ${scenario.prompts.length}`} onBack={()=>setScenario(null)}/><div className="px-5 pb-8">
+    <div className="p-5" style={{background:T.surface,border:`1px solid ${T.line}`,borderRadius:20}}>
+      <div className="flex items-center justify-between gap-3"><div style={{fontFamily:mono,fontSize:9.5,color:scenario.accent,letterSpacing:'.12em'}}>TU INTERLOCUTOR</div><Speak text={current.ask} say={say} size={16}/></div>
+      <div style={{fontFamily:serif,fontSize:22,color:T.cream,lineHeight:1.35,marginTop:12}}>{current.ask}</div>
+    </div>
+    <div className="p-4 mt-3" style={{background:T.raised,border:`1px solid ${result?scenario.accent:T.line}`,borderRadius:18}}>
+      <div style={{fontFamily:mono,fontSize:9.5,color:T.sand,letterSpacing:'.12em'}}>YOUR ANSWER</div>
+      <textarea value={answer} onChange={e=>setAnswer(e.target.value)} disabled={!!result} placeholder="Responde en español…" rows={3} style={{width:'100%',marginTop:10,resize:'none',border:'none',outline:'none',background:'transparent',color:T.cream,fontFamily:serif,fontSize:19,lineHeight:1.4}}/>
+      {!result&&<div className="grid grid-cols-2 gap-2 mt-3"><button onClick={speakAnswer} disabled={!supported||listening} className="py-3 flex items-center justify-center gap-2" style={{borderRadius:13,background:listening?T.rose:T.jade,border:'none',color:T.ground,fontWeight:800}}><Mic size={17}/>{listening?'Listening…':'Speak'}</button><button onClick={()=>evaluate()} disabled={!answer.trim()} className="py-3 flex items-center justify-center gap-2" style={{borderRadius:13,background:T.marigold,border:'none',color:T.ground,fontWeight:800}}><Send size={17}/>Check</button></div>}
+    </div>
+    {result?.error&&<div className="p-4 mt-3" style={{border:`1px solid ${T.rose}`,borderRadius:16,color:T.cream}}>{result.error}</div>}
+    {result&&!result.error&&<div className="p-4 mt-3" style={{background:T.surface,border:`1px solid ${result.score>=70?T.jade:T.marigold}`,borderRadius:18}}>
+      <div className="flex items-baseline justify-between"><div style={{fontFamily:mono,fontSize:9.5,color:T.sand}}>COMMUNICATION SCORE</div><div style={{fontFamily:serif,fontSize:30,color:result.score>=70?T.jade:T.marigold}}>{result.score}%</div></div>
+      <div style={{fontFamily:mono,fontSize:9.5,color:T.marigold,letterSpacing:'.12em',marginTop:14}}>A NATURAL ANSWER</div><div style={{fontFamily:serif,fontSize:19,color:T.cream,lineHeight:1.4,marginTop:6}}>{current.model}</div>
+      {result.notes?.map((n,i)=><div key={i} style={{fontSize:13,color:T.sand,marginTop:7}}>• {n}</div>)}
+      <div className="mt-4 flex items-center gap-2"><Speak text={current.model} say={say} size={16}/><span style={{fontSize:12.5,color:T.sand}}>Listen and repeat once.</span></div>
+      <button onClick={()=>{setStep(x=>x+1);setAnswer('');setResult(null)}} className="w-full py-3.5 mt-4" style={{borderRadius:14,background:T.jade,border:'none',color:T.ground,fontWeight:800}}>Next</button>
+    </div>}
+  </div></>;
+}
+
 const STORE_KEY = 'espanol:progress:v3';
 const INTERVALS = [0,1,3,7,21];
 const DAY = 86400000;
@@ -419,10 +526,11 @@ export default function App(){
   const dueCards=useMemo(()=>ALL_CARDS.filter(c=>state.cards[c.id]&&state.cards[c.id].due<=Date.now()),[state]);
   const studyQueue=useMemo(()=>{if(!studyDeck)return[];if(studyDeck==='__due')return shuffle(dueCards).slice(0,20);const cards=ALL_CARDS.filter(c=>c.deck===studyDeck),ready=cards.filter(c=>!state.cards[c.id]||state.cards[c.id].due<=Date.now());return [...(ready.length?ready:cards)].sort((a,b)=>(state.cards[a.id]?.box||0)-(state.cards[b.id]?.box||0)).slice(0,20)},[studyDeck,state,dueCards]);
   const studyTitle=studyDeck==='__due'?'Repaso':DECKS.find(d=>d.id===studyDeck)?.name||'Estudio'; const poolFor=id=>id==='all'?ALL_CARDS:ALL_CARDS.filter(c=>c.deck===id);
-  const tabs=[['mazos','Mazos',Layers],['gramatica','Frases',BookOpen],['hablar','Hablar',Mic],['quiz','Quiz',Target],['avance','Avance',BarChart3]];
+  const tabs=[['mazos','Mazos',Layers],['tutor','Tutor',MessageCircle],['gramatica','Frases',BookOpen],['hablar','Hablar',Mic],['quiz','Quiz',Target],['avance','Avance',BarChart3]];
   let body;
   if(!loaded) body=<div className="px-5 pt-24 text-center" style={{fontFamily:mono,fontSize:12,color:T.sand}}>CARGANDO…</div>;
   else if(tab==='mazos') body=studyDeck?<Study queue={studyQueue} progress={state} grade={grade} say={say} title={studyTitle} onBack={()=>setStudyDeck(null)}/>:<Home progress={state} dueCount={dueCards.length} onOpen={setStudyDeck} onReview={()=>setStudyDeck('__due')}/>;
+  else if(tab==='tutor') body=<Tutor grade={grade} say={say}/>;
   else if(tab==='gramatica') body=<><Header title="Cómo se arma" sub="grammar and word order"/><Segmented value={gramTab} onChange={setGramTab} options={[["reglas","Reglas"],["armar","Armar"]]}/>{gramTab==='reglas'?<Lessons say={say}/>:<Builder grade={grade} say={say}/>}</>;
   else if(tab==='hablar') body=<><Header title="Hablar" sub="produce it out loud"/><Segmented value={hablarTab} onChange={setHablarTab} options={[["dilo","Dilo tú"],["pronuncia","Pronuncia"],["convo","Conversar"]]}/>{hablarTab==='dilo'?<SayIt grade={grade} say={say}/>:hablarTab==='pronuncia'?<PronunciationCoach grade={grade} say={say}/>:<Convos say={say}/>}</>;
   else if(tab==='quiz') body=quizPool?<Quiz pool={poolFor(quizPool)} grade={grade} say={say} listening={quizMode==='escuchar'} onBack={()=>setQuizPool(null)}/>:<><Segmented value={quizMode} onChange={setQuizMode} options={[["leer","Leer"],["escuchar","Escuchar"]]}/><DeckPicker title={quizMode==='leer'?'Práctica':'Al oído'} sub={quizMode==='leer'?'read it, pick the meaning':'hear it, pick the meaning'} onPick={setQuizPool}/></>;
