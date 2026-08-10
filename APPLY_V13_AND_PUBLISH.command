@@ -2,7 +2,7 @@
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 TARGET="$HOME/Quetzal/Confidential/Spanish App/poco-a-poco-github"
-echo "Poco a Poco v12 — Pronunciation Studio"
+echo "Poco a Poco v13 — Partner & Tutor Mode"
 echo "Target: $TARGET"
 if [ ! -d "$TARGET/.git" ]; then echo "Could not find existing Git repository: $TARGET"; exit 1; fi
 echo "1/5 Updating application..."
@@ -17,10 +17,11 @@ npm run build
 npm audit
 echo "4/5 Committing..."
 git add -A
-if git diff --cached --quiet; then echo "No code changes to commit."; else git commit -m "Poco a Poco v12 - Pronunciation Studio"; fi
+if git diff --cached --quiet; then echo "No code changes to commit."; else git commit -m "Poco a Poco v13 - Partner and Tutor Mode"; fi
 echo "5/5 Publishing..."
 git push
 echo ""
-echo "✓ v12 published."
+echo "✓ v13 published."
+echo "No paid API or backend is required."
 echo "Wait for GitHub Actions to turn green, then fully close and reopen the iPhone PWA."
 read "?Press Return to close."

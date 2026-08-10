@@ -1,10 +1,12 @@
 import React,{useEffect,useMemo,useRef,useState} from 'react';
-import {Home,Map,MessageCircle,Layers,BarChart3,ChevronRight,ChevronLeft,Volume2,Mic,Check,Flame,Target,Sparkles,Play,RotateCcw,Send,UserRound,BookOpen,Shuffle,Brain,AudioLines,Timer,Users,Drama,Wallet,CalendarDays,Trophy,MapPin,Speech,ChevronDown} from 'lucide-react';
+import {Home,Map,MessageCircle,Layers,BarChart3,ChevronRight,ChevronLeft,Volume2,Mic,Check,Flame,Target,Sparkles,Play,RotateCcw,Send,UserRound,BookOpen,Shuffle,Brain,AudioLines,Timer,Users,Drama,Wallet,CalendarDays,Trophy,MapPin,Speech,ChevronDown,UserRoundCheck,UsersRound,ClipboardCheck,Star} from 'lucide-react';
 import {CHAPTERS,CHARACTERS,MISSIONS,SCENARIOS,CONFIDENCE_LABELS,PERSONAS,PERSONA_SCENES} from './data/living';
 import {useLivingProgress} from './hooks/useLivingProgress';
 import {useWorldState} from './hooks/useWorldState';
 import {usePronunciationProgress} from './hooks/usePronunciationProgress';
 import {PRONUNCIATION_SETS,SHADOW_PHRASES} from './data/pronunciation';
+import {PARTNER_SESSIONS,TUTOR_PLANS,PEER_FEEDBACK} from './data/partner';
+import {usePartnerProgress} from './hooks/usePartnerProgress';
 import {WORLD_LOCATIONS,WORLD_ACHIEVEMENTS,RELATIONSHIP_PEOPLE} from './data/world';
 
 const T={ground:'#0E2B2A',surface:'#143836',raised:'#1B4543',line:'#27544F',cream:'#F2E9DC',sand:'#BFAE97',marigold:'#E9A33C',jade:'#57B79A',rose:'#DB6A6A',violet:'#9B7BB8'};
@@ -105,7 +107,7 @@ function Dashboard({lp,world,onGo}){
   <div style={{padding:'0 20px 10px'}}><div style={{...card,padding:17,borderColor:T.jade}}><div style={{fontFamily:mono,fontSize:9,color:T.jade}}>TODAY'S REAL-WORLD MISSION</div><div style={{fontFamily:serif,fontSize:21,marginTop:7}}>{mission.icon} {mission.title}</div><div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:6}}>{mission.prompt}</div><button onClick={()=>onGo('missions')} style={{width:'100%',padding:11,marginTop:11,borderRadius:12,border:0,background:T.jade,color:T.ground,fontWeight:750}}>Open mission</button></div></div>
   <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('coach')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12}}><Brain size={21} color={T.violet}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Smart Coach</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Adaptive offline conversation · focus: {weakLabel}</div></div><ChevronRight color={T.sand}/></button></div>
   <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('personas')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12}}><Users size={21} color={T.violet}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>People</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Recurring characters and real-life scenes</div></div><ChevronRight color={T.sand}/></button></div>
-  <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('pronunciation')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12,borderColor:T.violet}}><Speech size={21} color={T.violet}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Pronunciation Studio</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Sounds · stress · rhythm · consistency</div></div><ChevronRight color={T.violet}/></button></div><div style={{padding:'0 20px 20px'}}><button onClick={()=>onGo('speaking')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12}}><AudioLines size={21} color={T.jade}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Speaking Lab</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Shadowing · fluency · recognition match</div></div><ChevronRight color={T.sand}/></button></div>
+  <div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('partner')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12,borderColor:T.marigold}}><UsersRound size={21} color={T.marigold}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Partner & Tutor</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Two-person roleplay · guided tutor sessions</div></div><ChevronRight color={T.marigold}/></button></div><div style={{padding:'0 20px 4px'}}><button onClick={()=>onGo('pronunciation')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12,borderColor:T.violet}}><Speech size={21} color={T.violet}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Pronunciation Studio</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Sounds · stress · rhythm · consistency</div></div><ChevronRight color={T.violet}/></button></div><div style={{padding:'0 20px 20px'}}><button onClick={()=>onGo('speaking')} style={{...card,width:'100%',padding:15,color:T.cream,textAlign:'left',display:'flex',alignItems:'center',gap:12}}><AudioLines size={21} color={T.jade}/><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:19}}>Speaking Lab</div><div style={{fontSize:12.5,color:T.sand,marginTop:2}}>Shadowing · fluency · recognition match</div></div><ChevronRight color={T.sand}/></button></div>
  </>;
 }
 
@@ -641,6 +643,120 @@ function Personas({lp}){
 
 
 
+
+function PartnerTutor({partner}){
+  const [mode,setMode]=useState('partner');
+  const [sessionId,setSessionId]=useState(null);
+  const [turn,setTurn]=useState(0);
+  const [score,setScore]=useState(80);
+  const [selectedFeedback,setSelectedFeedback]=useState([]);
+  const [planId,setPlanId]=useState(null);
+  const [note,setNote]=useState('');
+
+  const session=PARTNER_SESSIONS.find(x=>x.id===sessionId);
+  const plan=TUTOR_PLANS.find(x=>x.id===planId);
+
+  if(session){
+    const current=session.turns[turn];
+    if(!current){
+      const feedback=selectedFeedback;
+      return <>
+        <Header title={session.title} sub="Session complete" onBack={()=>{setSessionId(null);setTurn(0)}}/>
+        <div style={{padding:'0 20px 28px'}}>
+          <div style={{...card,padding:20,textAlign:'center',borderColor:T.jade}}>
+            <div style={{fontFamily:mono,fontSize:9,color:T.sand}}>PEER SCORE</div>
+            <div style={{fontFamily:serif,fontSize:56,color:score>=80?T.jade:T.marigold,marginTop:7}}>{score}%</div>
+            <div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:8}}>Save the session so Partner Mode can track your practice history.</div>
+            <button onClick={()=>{partner.completeSession({sessionId:session.id,score,feedback,minutes:10});setSessionId(null);setTurn(0);setSelectedFeedback([])}} style={{width:'100%',padding:13,marginTop:13,borderRadius:13,border:0,background:T.jade,color:T.ground,fontWeight:750}}>Save session</button>
+          </div>
+        </div>
+      </>;
+    }
+
+    return <>
+      <Header title={session.title} sub={`${session.learnerRole} ↔ ${session.partnerRole} · ${turn+1}/${session.turns.length}`} onBack={()=>{setSessionId(null);setTurn(0)}}/>
+      <div style={{padding:'0 20px 28px'}}>
+        <div style={{...card,padding:16,marginBottom:10,borderColor:current[0]==='learner'?T.jade:T.violet}}>
+          <div style={{fontFamily:mono,fontSize:9,color:current[0]==='learner'?T.jade:T.violet,letterSpacing:'.1em'}}>{current[0]==='learner'?'LEARNER SAYS':'PARTNER SAYS'}</div>
+          <div style={{fontFamily:serif,fontSize:22,lineHeight:1.4,marginTop:8}}>{current[1]}</div>
+          <div style={{fontSize:12.5,color:T.sand,lineHeight:1.45,marginTop:6}}>{current[2]}</div>
+          <button onClick={()=>say(current[1],current[0]==='partner'?.9:.84)} style={{...btnIcon,marginTop:10}}><Volume2 size={17}/></button>
+        </div>
+
+        <div style={{...card,padding:16,marginBottom:10}}>
+          <div style={{fontFamily:mono,fontSize:9,color:T.sand}}>ROLE HANDOFF</div>
+          <div style={{fontSize:13.5,color:T.cream,lineHeight:1.5,marginTop:7}}>
+            {current[0]==='partner'?`Partner reads this line. Learner listens without reading English first.`:`Learner says the Spanish line naturally. Partner listens for meaning, rhythm and confidence.`}
+          </div>
+        </div>
+
+        <button onClick={()=>setTurn(t=>t+1)} style={{width:'100%',padding:14,borderRadius:13,border:0,background:T.marigold,color:T.ground,fontWeight:750}}>Next turn <ChevronRight size={16} style={{verticalAlign:'middle'}}/></button>
+      </div>
+    </>;
+  }
+
+  if(plan){
+    return <>
+      <Header title={plan.title} sub={`${plan.duration} minutes · guided tutor plan`} onBack={()=>setPlanId(null)}/>
+      <div style={{padding:'0 20px 28px'}}>
+        {plan.blocks.map(([name,time,desc],i)=><div key={name} style={{...card,padding:16,marginBottom:8,display:'flex',gap:11}}>
+          <div style={{width:29,height:29,borderRadius:99,background:T.raised,display:'grid',placeItems:'center',fontFamily:mono,fontSize:10,color:T.marigold,flexShrink:0}}>{i+1}</div>
+          <div><div style={{fontFamily:serif,fontSize:18}}>{name} <span style={{fontFamily:mono,fontSize:10,color:T.sand}}>· {time}</span></div><div style={{fontSize:12.5,color:T.sand,lineHeight:1.5,marginTop:4}}>{desc}</div></div>
+        </div>)}
+
+        <div style={{...card,padding:16,marginTop:10}}>
+          <div style={{fontFamily:serif,fontSize:19}}>Tutor note</div>
+          <textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Three corrections, one success, one homework item…" style={{width:'100%',boxSizing:'border-box',minHeight:90,marginTop:10,padding:12,borderRadius:12,border:`1px solid ${T.line}`,background:T.ground,color:T.cream}}/>
+          <button onClick={()=>{partner.addTutorNote(note);setNote('')}} disabled={!note.trim()} style={{width:'100%',padding:12,marginTop:8,borderRadius:12,border:0,background:note.trim()?T.jade:T.surface,color:note.trim()?T.ground:T.sand,fontWeight:700}}>Save tutor note</button>
+        </div>
+      </div>
+    </>;
+  }
+
+  return <>
+    <Header title="Partner & Tutor" sub="Two-person practice · one device"/>
+    <div style={{padding:'0 20px 28px'}}>
+      <div style={{display:'flex',gap:6,marginBottom:10}}>
+        {[['partner','PARTNER'],['tutor','TUTOR'],['history','HISTORY']].map(([id,l])=><button key={id} onClick={()=>setMode(id)} style={{flex:1,padding:9,borderRadius:11,border:`1px solid ${mode===id?T.jade:T.line}`,background:mode===id?T.raised:'transparent',color:mode===id?T.jade:T.sand,fontFamily:mono,fontSize:9}}>{l}</button>)}
+      </div>
+
+      <div style={{...card,padding:16,marginBottom:10,borderColor:T.violet}}>
+        <div style={{display:'flex',gap:9,alignItems:'center'}}><UsersRound size={19} color={T.violet}/><div style={{fontFamily:serif,fontSize:20}}>Practice with another person</div></div>
+        <div style={{fontSize:13,color:T.sand,lineHeight:1.5,marginTop:6}}>Use one phone. Take turns reading and responding. No account, server or internet session is required.</div>
+      </div>
+
+      {mode==='partner'&&<>
+        {PARTNER_SESSIONS.map(s=><button key={s.id} onClick={()=>{setSessionId(s.id);setTurn(0);setScore(80);setSelectedFeedback([])}} style={{...card,width:'100%',padding:15,marginBottom:8,color:T.cream,textAlign:'left',display:'flex',gap:11,alignItems:'center'}}>
+          <div style={{fontSize:29}}>{s.icon}</div>
+          <div style={{flex:1}}><div style={{fontFamily:serif,fontSize:18.5}}>{s.title}</div><div style={{fontSize:12.5,color:T.sand,marginTop:3}}>{s.learnerRole} ↔ {s.partnerRole} · {s.level}</div></div>
+          <ChevronRight size={17} color={T.sand}/>
+        </button>)}
+
+        <div style={{...card,padding:16,marginTop:10}}>
+          <div style={{fontFamily:serif,fontSize:19}}>Peer feedback shortcuts</div>
+          <div style={{fontSize:12.5,color:T.sand,lineHeight:1.45,marginTop:5}}>After a roleplay, choose only the feedback that matters.</div>
+          <div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:9}}>{PEER_FEEDBACK.map(f=><span key={f} style={{padding:'6px 9px',borderRadius:99,border:`1px solid ${T.line}`,background:T.raised,fontSize:11.5}}>{f}</span>)}</div>
+        </div>
+      </>}
+
+      {mode==='tutor'&&TUTOR_PLANS.map(p=><button key={p.id} onClick={()=>setPlanId(p.id)} style={{...card,width:'100%',padding:16,marginBottom:8,color:T.cream,textAlign:'left',display:'flex',gap:11,alignItems:'center'}}>
+        <div style={{fontSize:29}}>{p.icon}</div><div style={{flex:1}}><div style={{fontFamily:serif,fontSize:18.5}}>{p.title}</div><div style={{fontSize:12.5,color:T.sand,marginTop:3}}>{p.blocks.length} blocks · guided structure</div></div><ChevronRight size={17} color={T.sand}/>
+      </button>)}
+
+      {mode==='history'&&<>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:9,marginBottom:10}}>
+          <div style={{...card,padding:14}}><div style={{fontFamily:mono,fontSize:9,color:T.sand}}>SESSIONS</div><div style={{fontFamily:serif,fontSize:27,marginTop:4}}>{partner.state.sessions.length}</div></div>
+          <div style={{...card,padding:14}}><div style={{fontFamily:mono,fontSize:9,color:T.sand}}>AVG SCORE</div><div style={{fontFamily:serif,fontSize:27,marginTop:4}}>{partner.state.sessions.length?`${partner.average}%`:'—'}</div></div>
+        </div>
+        <div style={{...card,padding:16,marginBottom:10}}>
+          <div style={{fontFamily:serif,fontSize:19}}>Tutor notes</div>
+          {partner.state.tutorNotes.length?partner.state.tutorNotes.slice(0,8).map(n=><div key={n.at} style={{fontSize:13,color:T.sand,lineHeight:1.5,padding:'9px 0',borderTop:`1px solid ${T.line}`}}>{n.text}</div>):<div style={{fontSize:13,color:T.sand,marginTop:8}}>No tutor notes yet.</div>}
+        </div>
+      </>}
+    </div>
+  </>;
+}
+
 function PronunciationStudio({pron}){
   const [mode,setMode]=useState('sounds');
   const [setId,setSetId]=useState(null);
@@ -961,5 +1077,5 @@ function Progress({lp}){
 }
 function Study(){const phrases=[['¿Me regala un café, por favor?','Could I have a coffee, please?'],['¿Dónde queda la entrada?','Where is the entrance?'],['Aquí está bien, gracias.','Here is fine, thank you.'],['¿Cuál me recomienda?','Which do you recommend?'],['Fíjese que tengo un problema.','The thing is, I have a problem.'],['¿Cómo amaneció?','How are you this morning?'],['Todavía no, pero ya casi.','Not yet, but almost.'],['¿Me puede ayudar?','Can you help me?']];const [i,setI]=useState(0);const [show,setShow]=useState(false);const p=phrases[i%phrases.length];return <><Header title="Quick Review" sub="Everyday phrases"/><div style={{padding:'0 20px'}}><div onClick={()=>setShow(true)} style={{...card,padding:24,minHeight:250,display:'flex',flexDirection:'column',justifyContent:'center'}}><div style={{fontFamily:serif,fontSize:31,lineHeight:1.25}}>{p[0]}</div><button onClick={e=>{e.stopPropagation();say(p[0])}} style={{...btnIcon,marginTop:16}}><Volume2 size={19}/></button>{show&&<div style={{fontSize:17,color:T.sand,marginTop:22,paddingTop:17,borderTop:`1px solid ${T.line}`}}>{p[1]}</div>}</div><button onClick={()=>{setI(i+1);setShow(false)}} style={{width:'100%',padding:14,borderRadius:14,border:0,background:T.marigold,color:T.ground,fontWeight:750,marginTop:12}}>Next phrase</button></div></>}
 
-export default function App(){const lp=useLivingProgress();const world=useWorldState();const pron=usePronunciationProgress();const [tab,setTab]=useState('home');const [journeySelected,setJourneySelected]=useState(null);const nav=[['home','Home',Home],['world','World',Map],['coach','Coach',MessageCircle],['personas','People',Users],['pronunciation','Pronounce',Speech],['speaking','Speak',AudioLines],['progress','Progress',BarChart3]]; const go=(t,id)=>{setTab(t);if(t==='journey')setJourneySelected(id||null)}; let body=tab==='home'?<Dashboard lp={lp} world={world} onGo={go}/>:tab==='world'?<LivingWorld lp={lp} world={world} onGo={go}/>:tab==='journey'?<Journey lp={lp} selected={journeySelected} setSelected={setJourneySelected}/>:tab==='missions'?<Missions lp={lp}/>:tab==='coach'?<SmartCoach lp={lp}/>:tab==='personas'?<Personas lp={lp}/>:tab==='pronunciation'?<PronunciationStudio pron={pron}/>:tab==='speaking'?<SpeakingLab lp={lp}/>:tab==='progress'?<Progress lp={lp}/>:<Study/>;
- return <Shell><style>{`*{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:active{transform:scale(.99)}button:focus-visible,textarea:focus-visible{outline:2px solid ${T.marigold};outline-offset:2px}`}</style>{body}<nav style={{position:'fixed',left:0,right:0,bottom:0,background:'rgba(14,43,42,.96)',backdropFilter:'blur(12px)',borderTop:`1px solid ${T.line}`,zIndex:10}}><div style={{maxWidth:520,margin:'0 auto',display:'flex'}}>{nav.map(([id,label,Icon])=><button key={id} onClick={()=>go(id)} style={{flex:1,padding:'12px 3px 18px',border:0,background:'transparent',color:tab===id?T.marigold:T.sand,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}><Icon size={18}/><span style={{fontFamily:mono,fontSize:6.8,letterSpacing:'.02em'}}>{label.toUpperCase()}</span></button>)}</div></nav></Shell>}
+export default function App(){const lp=useLivingProgress();const world=useWorldState();const pron=usePronunciationProgress();const partner=usePartnerProgress();const [tab,setTab]=useState('home');const [journeySelected,setJourneySelected]=useState(null);const nav=[['home','Home',Home],['world','World',Map],['coach','Coach',MessageCircle],['personas','People',Users],['partner','Partner',UsersRound],['pronunciation','Pronounce',Speech],['speaking','Speak',AudioLines],['progress','Progress',BarChart3]]; const go=(t,id)=>{setTab(t);if(t==='journey')setJourneySelected(id||null)}; let body=tab==='home'?<Dashboard lp={lp} world={world} onGo={go}/>:tab==='world'?<LivingWorld lp={lp} world={world} onGo={go}/>:tab==='journey'?<Journey lp={lp} selected={journeySelected} setSelected={setJourneySelected}/>:tab==='missions'?<Missions lp={lp}/>:tab==='coach'?<SmartCoach lp={lp}/>:tab==='personas'?<Personas lp={lp}/>:tab==='partner'?<PartnerTutor partner={partner}/>:tab==='pronunciation'?<PronunciationStudio pron={pron}/>:tab==='speaking'?<SpeakingLab lp={lp}/>:tab==='progress'?<Progress lp={lp}/>:<Study/>;
+ return <Shell><style>{`*{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:active{transform:scale(.99)}button:focus-visible,textarea:focus-visible{outline:2px solid ${T.marigold};outline-offset:2px}`}</style>{body}<nav style={{position:'fixed',left:0,right:0,bottom:0,background:'rgba(14,43,42,.96)',backdropFilter:'blur(12px)',borderTop:`1px solid ${T.line}`,zIndex:10}}><div style={{maxWidth:520,margin:'0 auto',display:'flex'}}>{nav.map(([id,label,Icon])=><button key={id} onClick={()=>go(id)} style={{flex:1,padding:'12px 3px 18px',border:0,background:'transparent',color:tab===id?T.marigold:T.sand,display:'flex',flexDirection:'column',alignItems:'center',gap:4}}><Icon size={18}/><span style={{fontFamily:mono,fontSize:6.1,letterSpacing:'.015em'}}>{label.toUpperCase()}</span></button>)}</div></nav></Shell>}
