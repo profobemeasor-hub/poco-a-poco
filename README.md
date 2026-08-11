@@ -1,3 +1,3 @@
-# Poco a Poco v13 — Partner & Tutor Mode
+# Poco a Poco v14 — Beginner First
 
-Offline-first Spanish practice with Living World, Smart Coach, Personas, Pronunciation Studio, Speaking Lab, and local two-person tutor mode.
+Spanish from zero, then real-life practice.
