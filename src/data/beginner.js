@@ -54,3 +54,83 @@ export const WORK_LESSONS = [
 {id:'incidents',icon:'🚨',title:'Incidents',phrases:[['El sistema está caído','The system is down'],['Estamos investigando','We are investigating'],['No hay impacto operativo','There is no operational impact'],['Necesitamos escalarlo','We need to escalate it']]},
 {id:'vendors',icon:'🤝',title:'Vendors',phrases:[['Necesitamos una fecha confirmada','We need a confirmed date'],['Por favor envíe una actualización','Please send an update'],['¿Cuál es el tiempo estimado?','What is the estimated time?'],['Esto es prioritario','This is a priority']]}
 ];
+
+
+export const BERLITZ_PATH = [
+  {stage:'Foundation',units:[
+    {n:1,title:'Introductions',goal:'Greet people, introduce yourself and ask someone’s name.',focus:'yo / usted / él / ella · ser · alphabet',match:'Survival Spanish'},
+    {n:2,title:'Country & city',goal:'Say where you are from and identify a city or country.',focus:'un / una · este / esta · de',match:'Pronouns + Questions'},
+    {n:3,title:'Nationality',goal:'Say your nationality and understand other nationalities.',focus:'ser · singular/plural pronouns',match:'Pronouns'},
+    {n:4,title:'Languages',goal:'Say which languages you speak and how well.',focus:'hablar · un poco / muy bien',match:'Essential verbs'},
+    {n:5,title:'Office objects',goal:'Say what is in an office.',focus:'hay · en / sobre · esto / eso',match:'Gender & articles'},
+    {n:6,title:'Where objects are',goal:'Describe where things are located.',focus:'estar · al lado de / debajo de / encima de',match:'Moverse'},
+    {n:7,title:'People & places',goal:'Say where people and city locations are.',focus:'estar · enfrente de / detrás de / entre',match:'Moverse'},
+    {n:8,title:'Food & drink likes',goal:'Say what food and drinks you like.',focus:'gustar · me / le / nos / les · mucho',match:'Food & shopping'},
+    {n:9,title:'Mealtimes & clock time',goal:'Say when you eat and tell the time.',focus:'comer / beber / desayunar / cenar · time expressions',match:'Tiempo'},
+    {n:10,title:'Foundation review',goal:'Review introductions, location, likes and time.',focus:'review',match:'Practice'}
+  ]},
+  {stage:'Work & Shopping',units:[
+    {n:11,title:'Phone calls',goal:'Call someone, ask if a person is available and leave basic information.',focus:'llamar · querer · phone numbers',match:'Questions'},
+    {n:12,title:'Restaurant ordering',goal:'Order food, ask for what you want and pay.',focus:'desear / ordenar / pagar',match:'Food & shopping'},
+    {n:13,title:'Professions',goal:'Say what you and other people do for work.',focus:'trabajar · trabajar de',match:'Work'},
+    {n:14,title:'Workplace',goal:'Say where you work.',focus:'dónde · workplace vocabulary',match:'Work'},
+    {n:15,title:'Work responsibilities',goal:'Describe basic things you do at work.',focus:'hacer / leer / escribir / hablar · possessives',match:'Work'},
+    {n:16,title:'Finding a person at work',goal:'Identify where a person is and point people/things out.',focus:'este / ese · tener · poco / mucho / demasiado',match:'Work'},
+    {n:17,title:'Clothes & sizes',goal:'Describe clothes and say your size.',focus:'tú · tu · usar / llevar',match:'Real Life'},
+    {n:18,title:'Clothing preferences',goal:'Say which clothes you like and whether they fit.',focus:'gustar · quedar · muy / demasiado',match:'Real Life'},
+    {n:19,title:'Buying clothes',goal:'Ask prices and buy clothing.',focus:'costar · prices',match:'Números + Food & shopping'},
+    {n:20,title:'Work & shopping review',goal:'Review phone, work, clothes and shopping.',focus:'review',match:'Practice'}
+  ]},
+  {stage:'City & People',units:[
+    {n:21,title:'What is nearby',goal:'Ask what places are near your office or home.',focus:'vivir · cerca de / lejos de / por aquí',match:'Moverse'},
+    {n:22,title:'Transport',goal:'Describe how you travel.',focus:'ir / llegar / caminar / esperar / tomar / manejar',match:'Moverse'},
+    {n:23,title:'Getting somewhere',goal:'Ask and explain how to get to a place.',focus:'subir / bajar · transport language',match:'Moverse'},
+    {n:24,title:'Giving directions',goal:'Give simple step-by-step directions.',focus:'girar / seguir / ir · formal commands · para + infinitive',match:'Moverse'},
+    {n:25,title:'Family',goal:'Describe your family.',focus:'llamarse / tener / ser',match:'Pronouns'},
+    {n:26,title:'Physical description',goal:'Describe how a person looks.',focus:'tener · como',match:'Gender & articles'},
+    {n:27,title:'People you know',goal:'Talk about people you know.',focus:'conocer · direct objects me/te/lo/la/nos/los/las',match:'Pronouns'},
+    {n:28,title:'Civil status',goal:'Describe age, appearance and relationship status.',focus:'ser vs estar vs tener',match:'Essential verbs + traps'},
+    {n:29,title:'Seasons',goal:'Talk about seasons and basic weather.',focus:'hace frío/calor · hay sol/viento',match:'Tiempo'},
+    {n:30,title:'City & people review',goal:'Review transport, directions, family and seasons.',focus:'review',match:'Practice'}
+  ]},
+  {stage:'Travel & Independence',units:[
+    {n:31,title:'Weather forecast',goal:'Describe weather now and what will happen later.',focus:'ir a + infinitive · pronto / después / mañana',match:'Tiempo'},
+    {n:32,title:'Outdoor activities',goal:'Talk about sports and outdoor activities.',focus:'gustar + infinitive · activity verbs',match:'Real Life'},
+    {n:33,title:'Train tickets',goal:'Ask about and buy a train ticket.',focus:'salir / llegar / necesitar / costar / comprar',match:'Números + Moverse'},
+    {n:34,title:'Flight information',goal:'Ask how long a flight takes and get travel information.',focus:'durar / avisar',match:'Questions'},
+    {n:35,title:'Flight check-in',goal:'Check in and talk about luggage.',focus:'registrarse / poder / dar',match:'Essential verbs'},
+    {n:36,title:'Immigration',goal:'Explain where you came from and present travel documents.',focus:'venir de / presentar / pasar · para + infinitive',match:'Survival Spanish'},
+    {n:37,title:'Hotel reservation',goal:'Make a basic hotel reservation.',focus:'ordinal numbers · todo/toda/todos/todas',match:'Números'},
+    {n:38,title:'Hotel services',goal:'Ask what hotel services are available.',focus:'ofrecer / servir / pedir / limpiar / llevar',match:'Questions'},
+    {n:39,title:'Hotel problem',goal:'Explain a problem with your room.',focus:'estar + gerundio · durante',match:'Salud y apuros + Essential verbs'},
+    {n:40,title:'Level 1 review',goal:'Review the full A1 course and identify weak areas.',focus:'review',match:'Practice'}
+  ]}
+];
+
+export const BERLITZ_REINFORCEMENT = {
+  1:[['Me llamo Richard.','My name is Richard.'],['¿Cómo se llama usted?','What is your name?']],
+  2:[['Soy de Nigeria.','I am from Nigeria.'],['Vivo en Guatemala.','I live in Guatemala.']],
+  4:[['Hablo inglés.','I speak English.'],['Hablo un poco de español.','I speak a little Spanish.']],
+  5:[['Hay una computadora en la oficina.','There is a computer in the office.'],['Esto es una impresora.','This is a printer.']],
+  6:[['La computadora está sobre la mesa.','The computer is on the table.'],['La silla está al lado del escritorio.','The chair is beside the desk.']],
+  8:[['Me gusta el café.','I like coffee.'],['No me gusta mucho el picante.','I do not like spicy food very much.']],
+  9:[['Desayuno a las siete.','I eat breakfast at seven.'],['Ceno a las ocho.','I eat dinner at eight.']],
+  11:[['Buenos días. Quisiera hablar con Carlos.','Good morning. I would like to speak with Carlos.'],['¿Está Carlos, por favor?','Is Carlos there, please?']],
+  12:[['Quisiera ordenar.','I would like to order.'],['La cuenta, por favor.','The bill, please.']],
+  13:[['Soy ingeniero.','I am an engineer.'],['Trabajo en tecnología.','I work in technology.']],
+  15:[['Leo correos y hablo con mi equipo.','I read emails and speak with my team.'],['Escribo muchos correos.','I write many emails.']],
+  19:[['¿Cuánto cuesta esta camisa?','How much is this shirt?'],['¿Tiene una talla más grande?','Do you have a larger size?']],
+  21:[['¿Hay un banco por aquí?','Is there a bank around here?'],['La farmacia está cerca.','The pharmacy is nearby.']],
+  22:[['Voy al trabajo en carro.','I go to work by car.'],['Tomo un Uber.','I take an Uber.']],
+  24:[['Siga derecho.','Go straight.'],['Gire a la derecha.','Turn right.']],
+  25:[['Tengo dos hermanos.','I have two brothers/siblings.'],['Mi familia vive en Nigeria.','My family lives in Nigeria.']],
+  28:[['Tengo cuarenta años.','I am forty years old.'],['Estoy casado.','I am married.']],
+  29:[['Hace calor.','It is hot.'],['Hay mucho viento.','It is very windy.']],
+  31:[['Va a llover mañana.','It is going to rain tomorrow.'],['Después va a estar nublado.','Later it will be cloudy.']],
+  33:[['Necesito un boleto para mañana.','I need a ticket for tomorrow.'],['¿Cuánto cuesta?','How much is it?']],
+  35:[['Quisiera registrarme en el vuelo.','I would like to check in for the flight.'],['Tengo una maleta.','I have one suitcase.']],
+  36:[['Vengo de Guatemala.','I come from Guatemala.'],['Aquí está mi pasaporte.','Here is my passport.']],
+  37:[['Quisiera reservar una habitación.','I would like to reserve a room.'],['Para dos noches, por favor.','For two nights, please.']],
+  38:[['¿Ofrecen servicio de habitación?','Do you offer room service?'],['¿A qué hora sirven el desayuno?','What time do you serve breakfast?']],
+  39:[['El aire acondicionado no está funcionando.','The air conditioning is not working.'],['Hay un problema con el agua.','There is a problem with the water.']]
+};
